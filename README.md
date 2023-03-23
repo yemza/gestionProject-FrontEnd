@@ -1,59 +1,85 @@
-# GestionProject
+# Angular 10 JWT Authentication example
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 14.2.0.
+## Flow for User Registration and User Login
+For JWT – Token based Authentication with Web API, we’re gonna call 2 endpoints:
+- POST `api/auth/signup` for User Registration
+- POST `api/auth/signin` for User Login
 
-## Development Setup
+You can take a look at following flow to have an overview of Requests and Responses that Angular 10 Client will make or receive.
 
+![angular-10-jwt-authentication-flow](angular-10-jwt-authentication-flow.png)
 
-### Prerequisites
+## Angular JWT App Diagram with Router and HttpInterceptor
+![angular-10-jwt-authentication-overview](angular-10-jwt-authentication-overview.png)
 
-- Install [Node.js](https://nodejs.org/en) which includes [Node Package Manager][npm]
+For more detail, please visit:
+> [Angular 10 JWT Authentication with Web API](https://bezkoder.com/angular-10-jwt-auth/)
 
-### Setting Up a Project
+## With Spring Boot back-end
 
-Install the Angular CLI globally:
+> [Angular 10 + Spring Boot: JWT Authentication & Authorization example](https://bezkoder.com/angular-10-spring-boot-jwt-auth/)
 
+Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`.
+
+## With Node.js Express back-end
+
+> [Angular 10 + Node.js Express: JWT Authentication & Authorization example](https://bezkoder.com/node-js-express-angular-10-jwt-auth/)
+
+Open `app/_helpers/auth.interceptor.js`, modify the code to work with **x-access-token** like this:
+```js
+...
+
+// const TOKEN_HEADER_KEY = 'Authorization'; // for Spring Boot back-end
+const TOKEN_HEADER_KEY = 'x-access-token';   // for Node.js Express back-end
+
+@Injectable()
+export class AuthInterceptor implements HttpInterceptor {
+  ...
+
+  intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
+    ...
+    if (token != null) {
+      // for Spring Boot back-end
+      // authReq = req.clone({ headers: req.headers.set(TOKEN_HEADER_KEY, 'Bearer ' + token) });
+
+      // for Node.js Express back-end
+      authReq = req.clone({ headers: req.headers.set(TOKEN_HEADER_KEY, token) });
+    }
+    return next.handle(authReq);
+  }
+}
+
+...
 ```
-npm install -g @angular/cli
-```
 
-Create workspace:
+Run `ng serve --port 8081` for a dev server. Navigate to `http://localhost:8081/`.
 
-```
-ng new [PROJECT NAME]
-```
+## More practice
 
-Run the application:
+> [Angular 10 CRUD application example with Web API](https://bezkoder.com/angular-10-crud-app/)
 
-```
-cd [PROJECT NAME]
-ng serve
-```
+> [Angular 10 Pagination example | ngx-pagination](https://github.com/bezkoder/angular-10-pagination-example)
 
-Angular is cross-platform, fast, scalable, has incredible tooling, and is loved by millions.
+> [Angular 10 File Upload example with progress bar](https://bezkoder.com/angular-10-file-upload/)
 
+Fullstack with Node.js Express:
+> [Angular 10 + Node.js Express + MySQL](https://bezkoder.com/angular-10-node-js-express-mysql/)
 
-## Development server
+> [Angular 10 + Node.js Express + PostgreSQL](https://bezkoder.com/angular-10-node-express-postgresql/)
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
+> [Angular 10 + Node.js Express + MongoDB](https://bezkoder.com/angular-10-mongodb-node-express/)
 
-## Code scaffolding
+Fullstack with Spring Boot:
+> [Angular 10 + Spring Boot + MySQL](https://bezkoder.com/angular-10-spring-boot-crud/)
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+> [Angular 10 + Spring Boot + PostgreSQL](https://bezkoder.com/angular-10-spring-boot-postgresql/)
 
-## Build
+> [Angular 10 + Spring Boot + MongoDB](https://bezkoder.com/angular-10-spring-boot-mongodb/)
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
+Fullstack with Django:
+> [Angular 10 + Django Rest Framework](https://bezkoder.com/django-angular-10-crud-rest-framework/)
 
-## Running unit tests
+Integration (run back-end & front-end on same server/port)
+> [How to Integrate Angular 10 with Node.js Restful Services](https://bezkoder.com/integrate-angular-10-node-js/)
 
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
-
-## Running end-to-end tests
-
-Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To use this command, you need to first add a package that implements end-to-end testing capabilities.
-
-## Further help
-
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.io/cli) page.
-
+> [How to Integrate Angular with Spring Boot Rest API](https://bezkoder.com/integrate-angular-spring-boot/)
