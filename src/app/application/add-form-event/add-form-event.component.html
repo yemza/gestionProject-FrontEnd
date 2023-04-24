@@ -1,0 +1,62 @@
+<h1 mat-dialog-title>Créer un nouvel événement</h1>
+<div mat-dialog-content>
+  <mat-form-field appearance="fill">
+    <mat-label>Titre</mat-label>
+    <input matInput [(ngModel)]="data.title">
+  </mat-form-field>
+  <mat-form-field appearance="fill">
+    <mat-label>Start</mat-label>
+    <input matInput [(ngModel)]="data.dateStart" [matDatepicker]="startPicker">
+    <mat-datepicker-toggle matSuffix [for]="startPicker"></mat-datepicker-toggle>
+    <mat-datepicker #startPicker></mat-datepicker>
+  </mat-form-field>
+  <mat-form-field appearance="fill">
+    <mat-label>End</mat-label>
+    <input matInput [(ngModel)]="data.dateEnd" [matDatepicker]="endPicker">
+    <mat-datepicker-toggle matSuffix [for]="endPicker"></mat-datepicker-toggle>
+    <mat-datepicker #endPicker></mat-datepicker>
+  </mat-form-field>
+  <div mat-dialog-actions>
+    <button mat-button (click)="onNoClick()">Annuler</button>
+    <button mat-button (click)="onSaveClick()" [mat-dialog-close]="data" cdkFocusInitial>Save</button> 
+  </div>
+  <!-- <mat-form-field appearance="fill">
+    <mat-label>EmployeeId</mat-label>
+    <input matInput [(ngModel)]="data.employee"> 
+  </mat-form-field> -->
+</div>
+
+
+<!-- <ng-template #addConge let-modal>
+  <div style="margin: 50px;"> 
+      <div class="modal-header">
+          <h4 class="modal-title">Add leave</h4>
+      </div>
+      <form #f="ngForm" (ngSubmit)="saveConge(f)">
+        
+          <span>Departure date:</span>
+          <input class="form-control"   type="date" required [(ngModel)]="conge.departureDate" id="txtDate" name="departureDate"
+                 #name="ngModel" placeholder="" [min]="today"/>
+
+          <span>Return date :</span>
+          <input type="date" class="form-control" required id="txtDate" [(ngModel)]="conge.returnDate"
+                 name="returnDate" #returnDate="ngModel" placeholder="" [min]="today">
+
+                 <span>Type :</span>
+                 <select  type="text" class="form-control" [(ngModel)]="conge.type" name="type" #type="ngModel">
+                     <option *ngFor="let type of types" value="/api/types/{{type.id}}" >{{type.name}}</option>
+                  </select>
+                  
+                  <div *ngIf="isCongeAlreadyExists">
+                      <p style="color: red;">Conge already exists for this user between these dates</p>
+                   </div>
+          <div class="modal-footer">
+              <button [disabled]="disableSave" type="submit" class="btn btn-light"
+                      (click)="modal.close('Close click')">Save</button>
+              <button type="button" class="btn btn-light"
+                      (click)="close(modal)">Close</button>
+          </div>
+      </form>
+  </div>
+</ng-template> -->
+

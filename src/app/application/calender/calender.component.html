@@ -1,0 +1,79 @@
+
+<button (click)="addItem()">Add Item</button>
+<!-- transmission des données de items au composant "ngx-ts" père -->
+<app-list></app-list>
+<ngx-ts
+[items]="items"
+[periods]="periods"
+[sections]="sections"
+[events]="events"
+[showBusinessDayOnly]="true"
+[allowDragging]="true"
+></ngx-ts>
+
+
+
+
+
+
+<!-- <div class="employee-column">
+  <div class="employee-header">
+    Employee
+  </div>
+  <div class="employee-list">
+    <div class="employee-item" *ngFor="let employee of employees">
+      {{employee.name}}
+    </div>
+  </div>
+</div> -->
+
+<!-- <form [formGroup]="eventForm" (ngSubmit)="onSubmit()">
+
+  <div>
+    <label for="employee">Employé</label>
+    <input type="text" formControlName="employee">
+  </div>
+
+  <div>
+    <label for="title">Titre</label>
+    <input type="text" formControlName="title">
+  </div>
+
+  <div>
+    <label for="start">Date de début</label>
+    <input type="datetime-local" formControlName="start">
+  </div>
+
+  <div>
+    <label for="end">Date de fin</label>
+    <input type="datetime-local" formControlName="end">
+  </div>
+
+  <div>
+    <button type="submit">Ajouter événement</button>
+  </div>
+
+</form> -->
+
+  
+
+
+
+
+
+<!--  <h3>Event output</h3>
+<label>
+  <textarea
+    placeholder="Event output"
+    [(ngModel)]="eventOutput"
+    name="event-output"
+    style="width: 80%; height: 50px"></textarea>
+</label>
+<br>-->
+
+<!--<button (click)="popItem()">Pop Item</button>
+<button (click)="removeItem()">Remove Item</button>
+<button (click)="addSection()">Add Section</button>
+<button (click)="popSection()">Pop Section</button>
+<button (click)="removeSection()">Remove Section</button>
+<button (click)="refresh()">Refresh</button>   -->

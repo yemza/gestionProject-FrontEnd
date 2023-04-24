@@ -1,0 +1,52 @@
+.landing-page {
+    width: 100%;
+    height: 100px;
+    display: flex;
+    position: relative;
+    max-width: 1440px;
+    box-sizing: border-box;
+    align-items: flex-start;
+    border-color: transparent;
+    background-color: rgba(255, 255, 255, 1);
+  }
+.slogan {
+    top:60px;
+    left: 259px;
+    color: rgba(53, 65, 75, 1);
+    width: auto;
+    height: auto;
+    position: absolute;
+    font-size: 64px;
+    align-self: auto;
+    font-style: normal;
+    text-align: center;
+    font-family: Inter;
+    font-weight: 700;
+    line-height: 72px;
+    font-stretch: normal;
+  }
+  .introduce {
+    top: 220px;
+    left: 400px;
+    color: rgba(78, 90, 101, 1);
+    width: 799px;
+    height: 48px;
+    position: absolute;
+    font-size: 24px;
+    align-self: auto;
+    font-style: normal;
+    text-align: center;
+    font-family: Inter;
+    font-weight: 400;
+    line-height: 24px;
+    font-stretch: normal;
+  }
+  .image {
+    top: 250px;
+    left: 350px;
+    width: 920px;
+    height: 654px;
+    position: absolute;
+    object-fit: cover;
+    border-color: transparent;
+  }

@@ -1,0 +1,23 @@
+
+/*::ng-deep .mat-mdc-dialog-container {
+    position: absolute;
+    display: block;
+    left: 50%;
+    right: 50%;
+    top: 83%;
+    height: 48%;
+    width: 33%;
+    transform: translate(-56%, 35%);
+}*/
+ /* ::ng-deep .mat-mdc-dialog-container {
+    --mdc-dialog-subhead-font: Roboto, sans-serif;
+    --mdc-dialog-subhead-line-height: 32px;
+    --mdc-dialog-subhead-size: 16px;
+    --mdc-dialog-subhead-weight: 500;
+    --mdc-dialog-subhead-tracking: .0125em;
+    --mdc-dialog-supporting-text-font: Roboto, sans-serif;
+    --mdc-dialog-supporting-text-line-height: 24px;
+    --mdc-dialog-supporting-text-size: 16px;
+    --mdc-dialog-supporting-text-weight: 400;
+    --mdc-dialog-supporting-text-tracking: .03125em;
+} */
