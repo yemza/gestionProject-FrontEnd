@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { TokenStorageService } from './_core/_services/token-storage.service';
-import { AddFormEventComponent } from './application/add-form-event/add-form-event.component';
-import { MatDialog } from '@angular/material/dialog';
+
 
 @Component({
   selector: 'app-root',
@@ -38,7 +37,5 @@ export class AppComponent implements OnInit {
     window.location.reload();
   }
 }
-function openDialog() {
-  throw new Error('Function not implemented.');
-}
+
 

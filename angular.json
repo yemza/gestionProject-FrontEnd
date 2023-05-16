@@ -27,8 +27,12 @@
                 ],
             "scripts": [],
             "allowedCommonJsDependencies": [
-              "moment"
+              "moment",
+              "moment-timezone",
+              "deepmerge",
+              "jalaali-js"
             ]
+  
           },
           "configurations": {
             "production": {
@@ -135,14 +139,6 @@
             "production": {
               "tsConfig": "projects/ngx-time-scheduler/tsconfig.lib.prod.json"
             }
-          }
-        },
-        "test": {
-          "builder": "@angular-devkit/build-angular:karma",
-          "options": {
-            "main": "projects/ngx-time-scheduler/src/test.ts",
-            "tsConfig": "projects/ngx-time-scheduler/tsconfig.spec.json",
-            "karmaConfig": "projects/ngx-time-scheduler/karma.conf.js"
           }
         }
       }

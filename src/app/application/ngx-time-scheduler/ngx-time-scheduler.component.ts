@@ -21,7 +21,7 @@ import { ITask } from 'src/app/_shared/models/task.interface';
 import { TaskService } from 'src/app/_core/_services/task.service';
 import { MatDialog } from '@angular/material/dialog';
 import { AddComponent } from '../task/add/add.component';
-
+import { ShowComponent } from '../task/show/show.component';
 
 
 
@@ -32,15 +32,19 @@ import { AddComponent } from '../task/add/add.component';
 })
 export class NgxTimeSchedulerComponent implements OnInit, OnDestroy {
 
+  task_id: number;
+  public show = true;
+
   @ViewChild('sectionTd') set SectionTd(elementRef: ElementRef) {
     if (elementRef) { // Vérifie si elementRef est défini
       this.SectionLeftMeasure = elementRef.nativeElement.clientWidth + 'px';
       this.changeDetector.detectChanges();
     }
   }
+
   @Output() refreshEmitter = new EventEmitter<boolean>();
   @Input() currentTimeFormat = 'DD-MMM-YYYY HH:mm';//The Moment format to use when displaying Tooltip information
-  @Input() showCurrentTime = true;  /* Whether to show the Current Time or not */
+  @Input() showCurrentTime = false;  /* Whether to show the Current Time or not */
   @Input() showGoto = true; /* Whether to show the Goto button */
   @Input() showToday = true;  /* Whether to show the Today button */
   @Input() allowDragging = true;
@@ -56,6 +60,9 @@ export class NgxTimeSchedulerComponent implements OnInit, OnDestroy {
   @Input() periods: Period[];
   @Input() events: Events = new Events();
   @Input() start = moment().startOf('day');// The Moment to start the calendar
+  today = moment().startOf('day');
+  tasks : ITask[];
+ // tasks: Observable<Array<ITask>>;
 
   end = moment().endOf('day');
   showGotoModal = false;                //modal de navigation par défaut false
@@ -69,7 +76,8 @@ export class NgxTimeSchedulerComponent implements OnInit, OnDestroy {
   header: Header[];                     //variable qui stocke un tableau d'objets de type "Header"
   sectionItems: SectionItem[];          //variable qui stocke un tableau d'objets de type "SectionItem"
   subscription = new Subscription();    //variable qui stocke une instance de la classe "Subscription" pour gérer des observables.
-  
+  eventOutput = '';
+
   /*Resize the scheduler*/
   sectionwidth=0;
   prevright=0;
@@ -77,62 +85,102 @@ export class NgxTimeSchedulerComponent implements OnInit, OnDestroy {
   itemHold: Item[]=[];  
 
   iTask : ITask[];
-  tasks: Observable<Array<ITask>>;
   constructor(
               private changeDetector: ChangeDetectorRef,
               private service: NgxTimeSchedulerService,
               private taskService: TaskService,
-              public dialog: MatDialog             
+              public  dialog: MatDialog,  
   ) {
   
     moment.locale(this.locale);
+    
   }
 
 /**
  *  Dialog Overview
  */
-getTasks() {
-  this.taskService.getTaskList().subscribe(
-    (d) => {
-      this.iTask = d;
-    },
-    (error) => {
-      console.error(error);
+
+getTasks(): void {
+  this.taskService.getTaskList().subscribe( result => {
+    this.tasks = result;
+    this.items = [];
+    let i = 0;
+    this.tasks.forEach(tsk => {
+      tsk?.employee?.forEach(emp => {
+        let classe: string;
+        switch (tsk?.type) {
+          case 'Affecté':
+            classe = 'item-success';
+            break;
+          case 'Absent':
+            classe = 'item-warning';
+            break;
+          case 'Sans affectation':
+            classe = 'item-info';
+            break;
+            default:
+              classe = 'item-warning';
+        }
+        this.items.push({
+          id: i++,
+          id_task: tsk.id,
+          sectionID: parseInt(emp?.id),
+          name: tsk?.title,
+          start: moment(tsk?.startDate).startOf('day'),
+          end: moment(tsk?.endDate).endOf('day'),
+          classes: classe,
+         });
+      });
+    });
+  });
+}
+
+    onOpenDialogAdd(id: number, date: string) {
+      const dialogRef = this.dialog.open(AddComponent, {
+      data: {id, date}
+      // data: task,
+      });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      this.getTasks();
+      this.refreshEmitter.emit(true);
+
+    });
+    
+  }
+    /****       Task */
+    onOpenDialogShow(task: ITask) {
+        const dialogRef = this.dialog.open(ShowComponent, {
+          data: task,
+       
+        });
+    
+        dialogRef.afterClosed().subscribe((result) => {
+          this.getTasks();
+          this.refreshEmitter.emit(true);
+        });
+      
     }
-  ); ;
-}
+    
 
-onOpenDialog(task: ITask) {
-  const dialogRef = this.dialog.open(AddComponent, {
-    data: this.iTask[0] ,
-  });
-
-  dialogRef.afterClosed().subscribe((result) => {
-    this.getTasks();
-    this.refreshEmitter.emit(true);
-  });
-  
-}
 
   ngOnChanges(changes: SimpleChanges) {
     if (changes['sections']) {
       this.setSectionsInSectionItems();
+      this.getTasks();
+
     }
   }
 
   ngOnInit(): void {
     this.getTasks();
     this.transferItem();
-    this.setSectionsInSectionItems();
-    this.changePeriod(this.periods[0], false);
-    this.itemPush();
-    this.itemPop();
-    this.itemRemove();
+//    this.setSectionsInSectionItems();
+    this.changePeriod(this.periods[1], false);
     this.sectionPush();
     this.sectionPop();
     this.sectionRemove();
     this.refresh();
-
   }
   transferItem(){
     //transfer items defined in app to this library
@@ -144,7 +192,9 @@ onOpenDialog(task: ITask) {
     que la période ne doit pas être modifiée.*/
   refreshView() {
     this.setSectionsInSectionItems();
+    this.getTasks();
     this.changePeriod(this.currentPeriod, false);
+    
   }
   // Fonction de performance qui permet de suivre chaque élément par son index dans le tableau
   trackByFn(index, item) {
@@ -167,6 +217,24 @@ onOpenDialog(task: ITask) {
 
 
   }
+  getItemTooltip(itemMeta: any): string {
+    if (itemMeta.item.tooltip) {
+      return itemMeta.item.tooltip;
+    } else {
+      return '';
+    }
+  }
+  get methodedatapopup(){
+
+    let event = {
+      title : "hello",
+      task : 'anatst',
+      date :'2023-12-15'
+
+    }
+
+    return JSON.stringify(event)
+  }
     /*La fonction setItemsInSectionItems() est responsable de créer une liste d'objets ItemMeta
     pour chaque SectionItem créé précédemment. Elle boucle sur chaque SectionItem créé précédemment
     et crée une nouvelle liste d'objets ItemMeta correspondant à chaque élément de la liste items. 
@@ -179,13 +247,13 @@ onOpenDialog(task: ITask) {
       ele.itemMetas = new Array<ItemMeta>();
       ele.minRowHeight = this.minRowHeight;
 
-      this.itemHold.filter(i=>{
+      this.itemHold?.filter(i=>{
         let itemMeta = new ItemMeta();
 
-        if (i.sectionID === ele.section.id) {
+        if (i.sectionID === ele.section.id  ) {
           itemMeta.item = i;
-          if (itemMeta.item.start <= this.end && itemMeta.item.end >= this.start) {
-            itemMeta = this.itemMetaCal(itemMeta);
+          if (itemMeta.item.start <= this.end && itemMeta.item.end >= this.start  ) {
+            itemMeta = this.itemMetaCal(itemMeta,  );
             ele.itemMetas.push(itemMeta);
             itemMetas.push(itemMeta);
           }
@@ -255,7 +323,6 @@ onOpenDialog(task: ITask) {
             (prevElem.cssTop <= elemBottom && elemBottom <= prevElemBottom)
           )) {
             elem.cssTop = prevElemBottom + 1;
-         // prev = 0;
           }
         }
 
@@ -267,26 +334,38 @@ onOpenDialog(task: ITask) {
     }
   }
 
-  changePeriod(period: Period, userTrigger: boolean = true) {
-    this.currentPeriod = period;
-    const _start = this.start;
-    this.end = moment(_start).add(this.currentPeriod.timeFrameOverall, 'minutes').endOf('day');
-    this.currentPeriodMinuteDiff = Math.abs(this.start.diff(this.end, 'minutes'));
+
+changePeriod(period: Period, userTrigger: boolean = true, useMoment: boolean = true) {
+  this.currentPeriod = period;
+  if(useMoment){
+    if (this.currentPeriod.name === 'Mois') {
+      this.start = moment().startOf('month');
+      this.end = moment().endOf('month');
+    } else if (this.currentPeriod.name === 'Semaine') {
+      this.start = moment().startOf('week');
+      this.end = moment().endOf('week');
+    } else if (this.currentPeriod.name === 'Année') {
+      this.start = moment().startOf('year');
+      this.end = moment().endOf('year');
+    }
+  }
+  this.currentPeriodMinuteDiff = Math.abs(this.start.diff(this.end, 'minutes'));
+
 
     if (userTrigger && this.events.PeriodChange) {
       this.events.PeriodChange(this.start, this.end);
     }
-
+  
     if (this.showBusinessDayOnly) {
       this.currentPeriodMinuteDiff -=
         (this.getNumberOfWeekendDays(moment(this.start), moment(this.end)) * this.currentPeriod.timeFramePeriod);
     }
-
+  
     this.header = new Array<Header>();
     this.currentPeriod.timeFrameHeaders.forEach((ele: string, index: number) => {
       this.header.push(this.getDatesBetweenTwoDates(ele, index));
     });
-
+  
     this.setItemsInSectionItems();
     this.showCurrentTimeIndicator();
   }
@@ -310,25 +389,63 @@ onOpenDialog(task: ITask) {
   }
 
   gotoToday() {
-    this.start = moment().startOf('day');
+    this.start = moment(this.start).startOf('day');
     this.changePeriod(this.currentPeriod);
   }
+
+
 
   nextPeriod() {
-    this.start.add(this.currentPeriod.timeFrameOverall, 'minutes');
-    this.changePeriod(this.currentPeriod);
-  }
+    
+    if ( this.currentPeriod.name === 'Mois') {
+      this.start.add(1, 'month').startOf('month');
+      this.end.add(1, 'month').endOf('month');
+    } else if (this.currentPeriod.name === 'Semaine') {
+      this.start.add(1, 'week').startOf('week');
+      this.end.add(1, 'week').endOf('week');
+    } else if ( this.currentPeriod.name === 'Année') {
+      this.start.add(1, 'year').startOf('year');
+      this.end.add(1, 'year').endOf('year');
 
+    }
+    this.changePeriod(this.currentPeriod, true, false);
+  }
+  
+  
   previousPeriod() {
-    this.start.subtract(this.currentPeriod.timeFrameOverall, 'minutes');
-    this.changePeriod(this.currentPeriod);
-  }
+    if (this.currentPeriod.name === 'Mois') {
+      this.start.subtract(1, 'month');
+      this.end.subtract(1, 'month').endOf('month');
+    } else if (this.currentPeriod.name === 'Semaine') {
+      this.start.subtract(1, 'week');
+      this.end.subtract(1, 'week').endOf('week');
+    } else if (this.currentPeriod.name === 'Année') {
+      this.start.subtract(1, 'year');
+      this.end.subtract(1, 'year').endOf('year');
+     } 
+  
+   this.changePeriod(this.currentPeriod,true, false);
 
+  }
+  
   gotoDate(event: any) {
     this.showGotoModal = false;
-    this.start = moment(event).startOf('day');
-    this.changePeriod(this.currentPeriod);
+    let selectedDate = moment(event).startOf('day');
+  
+    if (this.currentPeriod.name === 'Mois') {
+      this.start = moment(selectedDate).startOf('month');
+      this.end = moment(selectedDate).endOf('month');
+    } else if (this.currentPeriod.name === 'Semaine') {
+      this.start = moment(selectedDate).startOf('week');
+      this.end = moment(selectedDate).endOf('week');
+    } else if (this.currentPeriod.name === 'Année') {
+      this.start = moment(selectedDate).startOf('year');
+      this.end = moment(selectedDate).endOf('year');
+    }
+  
+    this.changePeriod(this.currentPeriod,true, false);
   }
+  
   /*Cette méthode prend en paramètre un format de date et un index. 
   Elle retourne un objet Header contenant une liste de HeaderDetails.*/
   getDatesBetweenTwoDates(format: string, index: number): Header {
@@ -351,13 +468,16 @@ onOpenDialog(task: ITask) {
         headerDetails.colspan = colspan;
         headerDetails.tooltip = this.currentPeriod.timeFrameHeadersTooltip && this.currentPeriod.timeFrameHeadersTooltip[index] ?
           now.locale(this.locale).format(this.currentPeriod.timeFrameHeadersTooltip[index]) : '';
+        headerDetails.fullDate = now.locale(this.locale).format(this.currentPeriod.currentDate[index]);
         dates.headerDetails.push(headerDetails);
+   
       }
       now.add(this.currentPeriod.timeFramePeriod, 'minutes');
     }
     return dates;
   }
 
+  
   getNumberOfWeekendDays(startDate, endDate) {
     let count = 0;
     while (startDate.isBefore(endDate) || startDate.isSame(endDate)) {
@@ -370,7 +490,7 @@ onOpenDialog(task: ITask) {
   }
 
   drop(event: CdkDragDrop<Section>) {
-   //event.item.data.sectionID = event.container.data.id;
+   event.item.data.sectionID = event.container.data.id;
     this.refreshView();
     this.events.ItemDropped(event.item.data);
   }
@@ -389,14 +509,14 @@ onOpenDialog(task: ITask) {
     }));
   }
 
-  itemRemove() {
-    this.subscription.add(this.service.itemId.asObservable().subscribe((itemId: number) => {
-      this.items.splice(this.items.findIndex((item) => {
-        return item.id === itemId;
-      }), 1);
-      this.refreshView();
-    }));
-  }
+  // itemRemove() {
+  //   this.subscription.add(this.service.itemId.asObservable().subscribe((itemId: number) => {
+  //     this.items.splice(this.items.findIndex((item) => {
+  //       return item.id === itemId;
+  //     }), 1);
+  //     this.refreshView();
+  //   }));
+  // }
 
   sectionPush() {
     this.subscription.add(this.service.sectionAdd.asObservable().subscribe((section: Section) => {
@@ -485,14 +605,16 @@ onOpenDialog(task: ITask) {
     //to calculate how far the item was dragged
     this.sectionwidth=rectwwidth/daysinbtween;
     this.prevright =  Number(event.rectangle.right);
-   // this.events.ItemResizeStart(itemmeta.item);
-   }
+    this.events.ItemResizeStart(itemmeta.item);
+    }
+    async callRefreshwDelay(ms: number){
+      await this.delay(ms);
+      this.refreshView();
+      }
 
-
-
-   test(sectionItem : any){
-    console.log("++++++++++++++++++++++++++++sectionItem++++++++++++++++++++++++")
-
-     console.log(sectionItem)
-   }
+       delay(ms: number) {
+        return new Promise( resolve => setTimeout(resolve, ms) );
+      }
+      
+ 
 }

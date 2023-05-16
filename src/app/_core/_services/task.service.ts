@@ -19,13 +19,13 @@ export class TaskService {
       .get('http://localhost:8081/api/v1/task')
       .pipe(map((d: Array<ITask>) => d));
   }
-  postTaskList(task: ITask): Observable<ITask> {
+  postTaskList(task: ITask, employeeId: number): Observable<ITask> {
     return this.httpclient
-      .post('http://localhost:8081/api/v1/task', task)
+      .post('http://localhost:8081/api/v1/task/' + employeeId, task)
       .pipe(map((d: ITask) => d));
   }
 
-  updateTask(task: ITask, id: string): Observable<ITask> {
+  updateTask(task: ITask, id: string ): Observable<ITask> {
     return this.httpclient
       .put(`http://localhost:8081/api/v1/task/${id}`, task)
       .pipe(map((d: ITask) => d));
@@ -36,8 +36,7 @@ export class TaskService {
 
   getTaskById(id: string): Observable<ITask> {
     return this.httpclient
-      .get(`http://localhost:8081/api/v1/task/${id}`)
-      .pipe(map((d: ITask) => d));
+      .get(`http://localhost:8081/api/v1/task/${id}` )
   }
 
   getTypePercentage(): Observable<Array<ITypePercentage>> {
@@ -47,6 +46,6 @@ export class TaskService {
   }
 
   getTypeOptions(): Array<ITaskTypeOption> {
-    return [{ type: 'done' }, { type: 'todo' }, { type: 'pending' }];
+    return [{ type: 'Affecté' }, { type: 'Absent' }, { type: 'Sans affectation' }];
   }
 }

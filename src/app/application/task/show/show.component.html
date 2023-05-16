@@ -1,32 +1,40 @@
-<div class="header">
-  <h1>Task</h1>
-  <button mat-icon-button color="warn" (click)="onDeleteTask()">
-    <mat-icon>delete</mat-icon>
-  </button>
+
+<div class="header" >
+  <h1>Affaire</h1>
 </div>
 
-<div class="add-task">
+<div class="update-task">
   <div class="content">
-    <form [formGroup]="taskForm" (submit)="updateTask()">
-      <mat-form-field>
-        <mat-label>Title</mat-label>
-        <input matInput placeholder="Title" formControlName="title" />
-      </mat-form-field>
+    <form [formGroup]="taskForm" (submit)="updateTask()" >
+      
       <mat-form-field appearance="fill">
         <mat-label>Type</mat-label>
-        <mat-select formControlName="type">
-          <mat-option *ngFor="let n of typeOptions" [value]="n.type">{{
-            n.type
-          }}</mat-option>
+        <mat-select formControlName="type" >
+          <mat-option *ngFor="let n of typeOptions" [value]="n.type">{{n.type}}</mat-option>
         </mat-select>
       </mat-form-field>
-
-      <mat-form-field appearance="fill">
-        <mat-label>Due date</mat-label>
-        <input matInput [matDatepicker]="picker" formControlName="dueDate" />
-        <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
-        <mat-datepicker #picker></mat-datepicker>
+      <mat-form-field *ngIf="taskForm.get('type').value === 'Affecté'">
+       <mat-label>Nom de l'affaire</mat-label>
+       <input matInput placeholder="Rechercher une affaire" formControlName="title" [matAutocomplete]="auto" />
+       <mat-autocomplete #auto="matAutocomplete">
+         <mat-option *ngFor="let ITask of filteredTasks | async" [value]="ITask.title">
+           {{ ITask.title }}
+         </mat-option>
+       </mat-autocomplete>
+       </mat-form-field>
+      
+       <mat-form-field appearance="fill">
+        <mat-label>Entrez une plage de dates</mat-label>
+        <mat-date-range-input [rangePicker]="picker">
+          <input matStartDate placeholder="startDate" formControlName="startDate">
+          <input matEndDate placeholder="endDate"   formControlName="endDate">
+        </mat-date-range-input>
+        <mat-hint>DD/MM/YYYY – DD/MM/YYYY</mat-hint>
+        <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+        <mat-date-range-picker #picker  ></mat-date-range-picker>
       </mat-form-field>
+      
+
       <mat-form-field>
         <mat-label>Description</mat-label>
         <textarea
@@ -34,15 +42,19 @@
           placeholder="Description"
           formControlName="description"
         ></textarea>
-      </mat-form-field>
+      </mat-form-field> 
+   
       <button
         [disabled]="taskForm.invalid"
         type="submit"
         mat-raised-button
         color="primary"
-      >
-        Update
+       >
+        Modifier
       </button>
+      <button mat-raised-button color="warn" (click)="onDeleteTask()">Supprimer</button>
+      <button mat-raised-button color="Warn" type="button" (click)="onNoClick()" >Annuler</button>
+
     </form>
   </div>
 </div>

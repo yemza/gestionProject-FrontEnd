@@ -17,6 +17,9 @@ export class  employee {
     const headers = new HttpHeaders().set('Authorization', `Bearer ${this.token}`);
     return this.http.get("http://localhost:8081/api/employees/all",{headers});
   }
+  // getAllEmployee(): Observable<Employee[]> {
+  //   return this.http.get<Employee[]>(`${this.apiUrl}/all`);
+  // }
   getEmployees(): Observable<any> {
     return this.http.get<any>(this.apiUrl);
   }

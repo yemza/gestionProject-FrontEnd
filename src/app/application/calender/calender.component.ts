@@ -1,14 +1,11 @@
-import {Component, OnInit} from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import {Component,  OnInit, ViewChild,EventEmitter,Output} from '@angular/core';
 import * as moment from 'moment';
-import {  FormBuilder } from '@angular/forms';
 import { NgxTimeSchedulerService } from '../ngx-time-scheduler/ngx-time-scheduler.service';
 import { Events, Item, Period, Section } from '../ngx-time-scheduler/ngx-time-scheduler.model';
-import { EventService} from 'src/app/_core/_services/event.service';
-import { AuthService } from 'src/app/_core/_services/auth.service';
 import { employee } from 'src/app/_core/_services/employee.service';
-import { EventParams } from 'src/app/_shared/models/Event.model';
-import { Input }from '@angular/core';
+import { TaskService } from 'src/app/_core/_services/task.service';
+import { ITask, } from '../../_shared/models/task.interface';
+import { NgxTimeSchedulerComponent } from '../ngx-time-scheduler/ngx-time-scheduler.component';
 
 @Component({
   selector: 'app-calender',
@@ -18,33 +15,35 @@ import { Input }from '@angular/core';
 
 export class CalenderComponent implements OnInit {
 
-  [x: string]: any;
+  @ViewChild(NgxTimeSchedulerComponent) ngxTimeSchedulerComponent;
   eventOutput = '';
   events: Events = new Events();
   periods: Period[];
-  sections: Section[] =[];
-  items: Item[];
+  sections: Section[] = [];
+  items: Item[] = [];
   itemCount = 3;
   sectionCount = 10;
-
-
-
+  tasks : ITask[];
+  task:ITask ;
 
 
   constructor(private service: NgxTimeSchedulerService, 
-              private eventService: EventService,
               private employee: employee,
-    ) {
+              private taskService: TaskService,
+
+           ) {
       this.events.SectionClickEvent = (section) => {
         this.eventOutput += '\n' + JSON.stringify(section);
       };
       this.events.SectionContextMenuEvent = (section, {x, y}: MouseEvent) => {
         this.eventOutput += '\n' + JSON.stringify(section) + ',' + JSON.stringify({x, y});
       };
-      this.events.ItemClicked = (item, event) => {
-       // console.log("ITems clicked event ");
-        this.eventOutput += '\n' + JSON.stringify(item) +  " ," + event.clientX;
+
+      this.events.ItemClicked = (item) => {
+        this.eventOutput += '\n' + JSON.stringify(item);
+       // this.onOpenDialog(task); // Appeler la méthode onOpenDialog avec l'objet Item sélectionné
       };
+      
       this.events.ItemContextMenu = (item, {x, y}: MouseEvent) => {
         // console.log("Coming here 1"+ JSON.stringify(item) + " ," + JSON.stringify({x, y}));
         this.eventOutput += '\n' + JSON.stringify(item) + ',' + JSON.stringify({x, y});
@@ -67,159 +66,35 @@ export class CalenderComponent implements OnInit {
 
 
     this.periods = [
-      {
-        name: 'Mois',//le nom de la vue, dans ce cas "Month".
-        timeFrameHeaders: ['MMMM  yyyy',' w', 'DD'],//les en-têtes de temps pour chaque période de temp
-        timeFrameHeadersTooltip: ['MMM yyyy', ' w', 'dddd'],
-        classes: '',
-        timeFrameOverall: 1440 * 28, // durée totale de la vue mensuele en minutes
-        timeFramePeriod: 1440 , // durée de chaque période de temps en minutes (7 jours)
-       },
+
       {   
         name: 'Semaine',
-        timeFrameHeaders: ['MMMM  yyyy','DD(dddd)'],
+        timeFrameHeaders: ['MMMM  yyyy',' w','DD(ddd)'],
         classes: '',
-        timeFrameOverall: 1440 * 7, // durée totale de la vue hebdomadaire en minutes 
         timeFramePeriod: 1440, // durée de chaque période de temps en minutes (7 jours)
+        currentDate: ['', '', 'YYYY-MM-DD']
       },
-     {
-        name: 'Année',
-        timeFrameHeaders: ['MMMM' , 'w'],
+      {
+        name: 'Mois',//le nom de la vue, dans ce cas "Month".
+        timeFrameHeaders: ['MMMM  yyyy','  w', 'DD'],//les en-têtes de temps pour chaque période de temp
+        timeFrameHeadersTooltip: ['MMM yyyy', ' w', 'dddd'],
         classes: '',
-        timeFrameOverall: 1440 * 365, // durée totale de la vue annuelle en minutes
-        timeFramePeriod: 1440 * 7 , // durée de chaque période de temps en minutes 
-        
-     }];
+        timeFramePeriod: 1440 , // durée de chaque période de temps en minutes 
+        currentDate: ['', '', 'YYYY-MM-DD']
+       },
+       {
+        name: 'Année',
+        timeFrameHeaders: ['yyyy', 'MMM', 'w'],
+        classes: '',
+        timeFramePeriod: 1440 * 5 , // durée de chaque période de temps en minutes (7 jours)((-2) jours de weekends)
+        currentDate: ['', '', 'YYYY-MM-DD']
 
-      // this.sections = [{
+      } ];
+      
 
-      //   name: 'KAOUACHI Oussama',
-      //   id: 1
-      // }, {
-      //   name: 'TALHAOUI Anas',
-      //   id: 2
-      // }, {
-      //   name: 'Hamza el bouazaoui',
-      //   id: 3
-      // }, {
-      //   name: 'TABIBOU mz',
-      //   id: 4
-      // }, {
-      //   name: 'Mohammed ouafini',
-      //   id: 5
-      // }, {
-      //   name: 'Lamiaa hamid',
-      //   id: 6
-      // }, {
-      //   name: 'xx',
-      //   id: 7
-      // }];
-  
-
-    this.items = [{
-      id: 1,
-      sectionID: 1,
-      name: 'CNOM',
-      start: moment().startOf('day'),
-      end: moment().add(2, 'days').endOf('day'),
-      classes: 'item-success',
-
-    }, {
-      id: 2,
-      sectionID: 2,
-      name: 'ORDO',
-      start: moment().startOf('day'),
-      end: moment().add(4, 'days').endOf('day'),
-      classes: 'item-success',
-
-    }, {
-      id: 3,
-      sectionID: 3,
-      name: 'FAM',
-      start: moment().add(5, 'days').startOf('day'),
-      end: moment().add(7, 'days').endOf('day'),
-      classes: 'item-success',
-
-    }, {
-      id: 4,
-      sectionID: 4,
-      name: 'FAM',
-      start: moment().add(1, 'days').startOf('day'),
-      end: moment().add(3, 'days').endOf('day'),
-      classes: 'item-success',
-
-    }, {
-      id: 5,
-      sectionID: 5,
-      name: 'CNOM',
-      start: moment().startOf('day'),
-      end: moment().add(8, 'days').endOf('day'),
-      classes: 'item-success',
-    }, {
-      id: 6,
-      sectionID: 6,
-      name: 'Absent',
-      start: moment().add(1, 'days').startOf('day'),
-      end: moment().add(3, 'days').endOf('day'),
-      classes: '',
-
-    }, {
-      id: 7,
-      sectionID: 7,
-      name: 'Sans Affectation',
-      start: moment().add(1, 'days').startOf('day'),
-      end: moment().add(3, 'days').endOf('day'),
-      classes: 'item-warning',
-
-     }];
- 
 }
 
 
-/****************Get Event  **************** */
-
-
-// ngOnInit() {
-  
-// }
-// eventss: Eventt[];
-// Listevents: any[];
-// getEvents() {
-//   if (this.employeeId) {
-//     this.eventService.getAllEvents()
-//       .subscribe(events => this.event = events);
-//   }
-// }
-// ngOnInit() {
-//   this.eventService.getAllEvents().subscribe(Listevents => {
-//     this.eventss = Object.values(Listevents);
-//     console.log(this.eventss); // Update this line to log this.events instead of this.Listevents
-//   });
-// }
-  nb: any;
-
-    addItem() {
-      this.eventService.getAllEvents().subscribe(Listevents => {
-        this.eventss = Listevents.map(eventss => eventss as EventParams);
-    
-      // Loop through the sections and push items to the service
-      for (let i = 0; i < this.sections.length; i++) {
-        const section = this.sections[i];
-      //  if(this.eventss[i].employee)
-        this.service.itemPush({
-          id: this.itemCount,
-          sectionID: this.nb--,
-          name: '',
-          start: moment().startOf('day'),
-          end: moment().add(3, 'days').endOf('day'),
-          classes: ''
-        });
-  
-        this.itemCount++; 
-      }
-    });
-  }
-  
 /****************Get Employee  **************** */
 
   ngOnInit() {
@@ -227,38 +102,68 @@ export class CalenderComponent implements OnInit {
       (res: Section[]) => {
         console.log(res);
         this.sections = res;
+    //    this.addItem();
+
       }
+
     );
+    this.getTasks();
+
   }
+ 
+/****************Get Tasks  **************** */
+  getTasks(): void {
+    this.taskService.getTaskList().subscribe( result => {
+      this.tasks = result;
+      let i = 0;
+      this.tasks.forEach(tsk => {
+        tsk?.employee?.forEach(emp => {
+          let classe: string;
+          switch (tsk?.type) {
+            case 'Affecté':
+              classe = 'item-success';
+              break;
+            case 'Absent':
+              classe = 'item-info';
+              break;
+            case 'Sans affectation':
+              classe = 'item-warning';
+              break;
+            default:
+              classe = 'item-warning';
+          }
+          this.items.push({
+            id: i++,
+            id_task:tsk.id,  
+            sectionID: parseInt(emp?.id),
+            name: tsk?.title,
+            start: moment(tsk?.startDate).startOf('day'),
+            end: moment(tsk?.endDate).endOf('day'),
+            classes: classe,
+           });
+        });
+      });
+     this.refresh();
+     this.ngxTimeSchedulerComponent.gotoToday();
 
-  
-// employes : any[] = [];
-// ngOnInit() {
-//   this.employee.getAllEmployee().subscribe({
-//       next: (employee) => {
-//           this.employes = Object.values(employee);
-//         this.getemployee();
-//         //this.addItem();
-//       }
-//   });
-// }
-// getemployee(){
-//   console.log("zeeee");
-//   for(let i = 0 ; i < this.employes.length; i++){
-//       this.sections.push({id: this.employes[i].id , name: this.employes[i].name + this.employes[i].id });
-//   }
-// }
+    });
+
+  }
    
-// AfterViewInit(){
-//   this.getemployee();
-// }
+    // AfterViewInit(){
+    //   this.getTasks();
+    // }
 
-// getAllEmployee(): any {
-//   let employes : any[] = [];
-// }
-// reload(){
-//   this.getemployee();
-// }
+    // reload(){
+    //  this.getTasks();  
+    // }
 
+    refresh() {
+  
+      this.service.refresh();
+    //  this.getTasks();
+    }
 }
+
+
 

@@ -6,15 +6,16 @@ export class Period {
   name: string;
   classes: string;
   timeFramePeriod: number;
-  timeFrameOverall: number;
   timeFrameHeaders: string[];
   timeFrameHeadersTooltip?: string[];
   tooltip?: string;
+  currentDate?: string[];
 }
 /*Item: Représente un élément ou une tâche planifiée avec des propriétés telles que l'identifiant, le nom, la date de début,
  la date de fin, les classes CSS, l'identifiant de section parente, et les informations de tooltip optionnelles.*/
 export class Item {
   id: number;
+  id_task: number | string;
   name: string;
   start: moment.Moment;
   end: moment.Moment;
@@ -27,16 +28,12 @@ export class Item {
 export class Section {
   id: number;
   name: string;
+  isEdit?: boolean=true;
   tooltip?: string;
+  id_task: number;
 }
-/*DialogData: Une interface utilisée pour représenter les données d'une boîte de dialogue avec des propriétés
- telles que le titre, la date de début, la date de fin et l'identifiant de l'employé*/
-export interface DialogData {
-  title: string;
-  dateStart: string;
-  dateEnd: string;
-  //employee: String | number;
-}
+
+
 /*Text: Une classe contenant des textes localisés pour les boutons et les titres du planificateur.*/
 export class Text {
   NextButton: string;
@@ -51,8 +48,8 @@ export class Text {
     this.PrevButton = 'Précédent';
     this.TodayButton = "Aujourd'hui";
     this.GotoButton = 'Aller à';
-    this.SectionTitle = 'Employées';
-    this.SectionProfile= 'Profile';
+    this.SectionTitle = 'Ressources';
+    this.SectionProfile= 'Profil';
   }
 }
 /*Events: Une classe contenant des définitions de fonctions de rappel pour les événements du planificateur,
@@ -67,7 +64,7 @@ export class Events {
   // ItemMovementStart: (item: Item, start: any, end: any) => void;
   // ItemMovementEnd: (item: Item, start: any, end: any) => void;
   ItemDropped: (item: Item) => void;
-  ItemClicked: (item: Item, event: MouseEvent) => void;
+  ItemClicked: (task: Task, event: MouseEvent) => void;
   ItemContextMenu: (item: Item, event: MouseEvent) => void;
   SectionClickEvent: (section: Section) => void;
   SectionContextMenuEvent: (section: Section, event: MouseEvent) => void;
@@ -78,6 +75,7 @@ export class Events {
 /*SectionItem: Représente une section avec des informations de présentation, 
 telle que la hauteur minimale des lignes et les métadonnées d'éléments associées.*/
 export class SectionItem {
+
   section: Section;
   minRowHeight: number;
   itemMetas: ItemMeta[];
@@ -117,4 +115,5 @@ export class HeaderDetails {
   name: string;
   colspan: number;
   tooltip?: string;
+  fullDate?: string;
 }

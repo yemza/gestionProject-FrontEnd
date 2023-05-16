@@ -1,4 +1,24 @@
+.update-task {
+  padding: 10px 12px 0 12px;
+
+}
+
 .header {
-  display: flex;
-  justify-content: space-between;
+  color: #FFFFFF;
+
+}
+.header h1 {
+  background: rgb(2, 136, 209);
+
+  padding: 20px 12px 20px 12px;
+}
+
+::ng-deep .mat-mdc-dialog-container {
+  position: absolute;
+  display: block;
+  left: 41%;
+  right: 50%;
+  height: 68%;
+  width: 26%;
+  top: 11%;
 }

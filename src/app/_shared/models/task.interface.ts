@@ -1,12 +1,17 @@
 import { Employee } from "./employee.model";
 
 interface ITask {
-  id?: string;
-  title: string;
-  type: string;
-  dueDate: Date;
-  description: string;
-  employeeId: number | string;
+  id?: string | number;
+  title?: string;
+  type?: string;
+  startDate?: Date;
+  date?: string;
+  endDate?: Date;
+  description?: string;
+  employee?: Employee[];
+ // ghdalaid: number;
+
+
 }
   
 

@@ -14,6 +14,7 @@ import { MatSelectModule } from '@angular/material/select';
 @NgModule({
   declarations: [
     AppComponent,
+
   ],
   imports: [
     BrowserModule,
@@ -24,7 +25,7 @@ import { MatSelectModule } from '@angular/material/select';
     NgxTimeSchedulerModule,
     FormsModule,
     ReactiveFormsModule,
-    MatSelectModule 
+    MatSelectModule,
 
   ],
   providers: [
