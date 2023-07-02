@@ -1,17 +1,21 @@
-<div class="language-picker-area ">
-
-  <div class="time-sch-wrapper " [style.height]="maxHeight">
+<div class="language-picker-area "  >
+         
+  <div class="time-sch-wrapper  " [style.height]="maxHeight" >
     <div class="time-sch-header-wrapper ">
+
       <div class="time-sch-period-container ">
-        <button class="btn" *ngIf="showGoto" (click)="dp.open()">Aller à</button>
+        <button class="btn" *ngIf="showGoto" (click)="dp.open()"> 
+          <i class="fas fa-calendar-day"></i>
+        </button>
+        
         <mat-form-field class="cdk-visually-hidden"  appearance="outline">
           <input matInput [matDatepicker]="dp" hidden (dateChange)="gotoDate($event.target.value)">
           <mat-datepicker #dp disabled="false"></mat-datepicker>
         </mat-form-field>
      
+        <button  class="btn" (click)="previousPeriod()"><i class="fa-solid fa-chevron-left"></i></button>
         <button  class="btn" *ngIf="showToday" [class.clicked]="isClicked"  (click)="gotoToday()" >{{text.TodayButton}}</button>
-        <button  class="btn" (click)="previousPeriod()">{{text.PrevButton}}</button>
-        <button  class="btn" (click)="nextPeriod()">{{text.NextButton}}</button>
+        <button  class="btn" (click)="nextPeriod()"><i class="fa-solid fa-chevron-right"></i></button>
   
       </div>
   
@@ -26,44 +30,39 @@
         </button>
       </div>
   
-      <h3 class="text-center m-0">
+      <h2 class="text-center m-0">
         {{ start.locale(locale).format(headerFormat) + ' - ' + end.locale(locale).format(headerFormat)}}
-      </h3>
+      </h2>
     </div>
   
-    <div class="time-sch-table-wrapper  ">
-      <table class="time-sch-table " >
-  
-        <tr *ngFor="let timeFrameHeader of header; let i = index; trackBy: trackByFn">
+    <div class="time-sch-table-wrapper"   >
+        <table class="time-sch-table" >
+   
+        <tr  *ngFor="let timeFrameHeader of header; let i = index; trackBy: trackByFn">
   
           <td class="time-sch-section text-center" *ngIf="i === 0" [rowSpan]="periods.length" >
             {{text.SectionTitle}}   
-        
           </td>
   
            <td class="time-sch-section text-center" *ngIf="i === 0" [rowSpan]="periods.length">
             {{text.SectionProfile}} 
-        
           </td> 
-          <td class="text-center "
-              *ngFor="let dateTime of timeFrameHeader.headerDetails; trackBy: trackByFn"
-              [colSpan]="dateTime.colspan"
-              [title]="dateTime.tooltip? dateTime.tooltip : ''"
-              [ngClass]="{'time-sch-today': today.isSame(dateTime.time, 'day')}" >
 
-         {{dateTime.name}} 
-      </td>
+          <td class="text-center "
+          *ngFor="let dateTime of timeFrameHeader.headerDetails; let i = index; trackBy: trackByFn"
+          [colSpan]="dateTime.colspan"
+          [title]="dateTime.tooltip ? dateTime.tooltip : ''"
+          [ngClass]="{'time-sch-today': dateTime}">
+            {{ dateTime.name }}
+          </td>
+          
         </tr> 
       </table>
-      <!-- <button class="btn-primary btn" (mouseover)="showPic(true)" (mouseout)="showPic(false)">hover Over Me</button>
-      <img   *ngIf="showImage"
-     src="https://i1.wp.com/blog.enriqueoriol.com/wp-content/uploads/2020/02/Screenshot-2020-03-02-at-13.07.07.png?fit=1540%2C598"
-     
-     class="img-thumbnail" alt=""> -->
-    
 
-      <div class="time-sch-content-wrap"  >
-        <table class="time-sch-table">
+
+     
+      <div class="time-sch-content-wrap "    >
+        <table class="time-sch-table"  >
           <!-- La directive "trackBy" est utilisée pour améliorer les performances lors de la mise à jour de la liste. -->
           <tr *ngFor="let sectionItem of sectionItems; trackBy: trackByFn"
               [style.height]="sectionItem.minRowHeight + 'px'">
@@ -72,29 +71,18 @@
               (contextmenu)="events.SectionContextMenuEvent ? events.SectionContextMenuEvent(sectionItem.section, $event) : false"
               [style.cursor]="events.SectionClickEvent ? 'pointer' : ''"
               [title]="sectionItem.section.tooltip? sectionItem.section.name : ''"
-            >
-            {{sectionItem.section.name}}
+              >
+              {{sectionItem.section.name}}
           </td>
           <td class="time-sch-section text-center" >{{sectionItem.section.profile}}</td>
 
-          <!-- afficher les détails d'en-tête d'une dernière colonne dans une table HTML. -->
+          <!-- afficher les détails d'en-tête des colonnes dans la tble HTML -->
             
-        <td *ngFor="let td of header[header.length - 1].headerDetails; trackBy: trackByFn" 
-          (click)=" onOpenDialogAdd(sectionItem.section.id, td.fullDate)"
-          [ngClass]="{'time-sch-today': today.isSame(td.fullDate, 'day')}" >
+          <td *ngFor="let td of header[header.length - 1].headerDetails; trackBy: trackByFn" 
+            (click)=" onOpenDialogAdd(sectionItem.section.id, td.fullDate)"
+            [ngClass]="{'time-sch-today': today.isSame(td.fullDate, 'day')}" >
 
-            <!-- (keydown)="onCtrlab()"
-            (mouseover)="tdOnmouseHover()"
-            (mouseleave)="tdOnmouseLeft()" -->
-          {{ td.task }}
-          <!-- <div class="info" *ngIf="showInfo" style="background-color: red;width: 200px;">
-            information
-          </div> -->
-        </td>
-
-        <!-- [ngClass]="{'pointer-events:none': isEdit, 'pointer-events:auto': !isEdit}" -->
-          <!-- <td *ngFor="let td of header[header.length - 1].headerDetails; trackBy: trackByFn" (click)="events.SectionClickEvent ? events.SectionClickEvent(sectionItem.section) : false"></td> -->
-
+          </td>
         </tr>          
         </table>
      
@@ -102,14 +90,17 @@
             matTooltip="Info about the action"
             [matTooltipPosition]="position.value!"
             matTooltipHideDelay="100000" -->
-        <div class="time-sch-section-wrapper" style="left: 400px; pointer-events: none;" cdkDropListGroup>
+
+        <div class="time-sch-section-wrapper" style="left: 400px; pointer-events: none; " cdkDropListGroup  >
           <!-- <div class="time-sch-section-wrapper" [style.left]="SectionLeftMeasure" cdkDropListGroup> -->
+
             <div class="time-sch-section-container "  (contextmenu)="events.newItemContextMenu ? events.newItemContextMenu(sectionItem, $event) : false" 
             cdkDropList cdkDropListSortingDisabled [cdkDropListData]="sectionItem.section" (cdkDropListDropped)="drop($event)"
             *ngFor="let sectionItem of sectionItems; trackBy: trackByFn" [style.height]="sectionItem.minRowHeight + 'px'">
             <div class="time-sch-item " 
             mwlResizable (resizeStart)="onResizeStart($event,itemMeta)" 
             (resizeEnd)="onResizeEnd($event,itemMeta)"
+          
              [enableGhostResize]="true"
               cdkDragBoundary=".time-sch-section-wrapper" 
               *ngFor="let itemMeta of sectionItem.itemMetas" 
@@ -117,7 +108,7 @@
               [ngClass]="itemMeta.item.classes" 
               (click)="events.ItemClicked ? onOpenDialogShow(itemMeta.item) : false"
               (contextmenu)="events.ItemContextMenu ? events.ItemContextMenu(itemMeta.item, $event) : false" 
-              [style.height]="minRowHeight + 'px'"
+              [style.height]="minRowHeightTask  + 'px'"
               [style.top]="itemMeta.cssTop + 'px'" 
               [style.left]="itemMeta.cssLeft + '%'"
               [style.width]="itemMeta.cssWidth + '%'" 
@@ -132,16 +123,19 @@
               <!-- 
               <div class="time-sch-item-end" *ngIf="itemMeta.isEnd" (click)="events.ItemClicked ? events.ItemClicked(itemMeta.item) : false" (contextmenu)="events.ItemContextMenu ? events.ItemContextMenu(itemMeta.item, $event) : false"></div> -->
               <div class="time-sch-item-end resize-handle-right" mwlResizeHandle [resizeEdges]="{ right: true }"></div>
+              <!-- <div class="time-sch-item-start resize-handle-left" mwlResizeHandle [resizeEdges]="{ left: true }"></div> -->
+
             </div>
             </div>
 
-            <div class="time-sch-current-time" *ngIf="showCurrentTime" [title]="currentTimeTitle" [style.visibility]="currentTimeVisibility" [style.left]="currentTimeIndicatorPosition"
-            >
+            <!-- <div class="time-sch-current-time" *ngIf="showCurrentTime" [title]="currentTimeTitle" [style.visibility]="currentTimeVisibility" [style.left]="currentTimeIndicatorPosition"
+            > -->
 
             </div>
+
         </div>
-    
-      <!-- <div class="time-sch-section-wrapper" [style.left]="SectionLeftMeasure" cdkDropListGroup>
+     
+      <!-- <div class="time-sch-section-wrapper" style="left: 400px; pointer-events: none; " cdkDropListGroup>
         <div class="time-sch-section-container"
              cdkDropList
              cdkDropListSortingDisabled
@@ -191,4 +185,3 @@
       </div>
     </div>
     </div>
-

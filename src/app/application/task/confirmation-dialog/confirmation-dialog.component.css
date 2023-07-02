@@ -1,0 +1,64 @@
+/* confirmation-dialog.component.css */
+/* .custom-dialog-title {
+    font-size: 20px;
+    font-weight: bold;
+    color: #333;
+  }
+  
+  .custom-dialog-content {
+    margin-bottom: 10px;
+    color: #555;
+  }
+  
+  .custom-dialog-actions {
+    display: flex;
+    justify-content: flex-end;
+  }
+  
+  .custom-dialog-actions button {
+    margin-left: 10px;
+  } */
+ 
+ 
+    /* mat-confirm-dialog (customised dialog) */
+    ::ng-deep .confirm-dialog-container .mat-dialog-container {
+      border-radius: .25em .25em .4em .4em;
+      padding: 0px;
+    }
+    ::ng-deep  .confirm-dialog-container .content-container{
+          margin: 5px 5px 15px 5px;
+          color: #000000;
+          display: flex;
+      }
+      ::ng-deep   .confirm-dialog-container #close-icon{
+          margin-left: auto;
+          order: 2;
+          font-weight: bolder;
+      }
+      ::ng-deep   .confirm-dialog-container #close-icon:hover{
+      cursor: pointer;
+      }
+      
+      ::ng-deep  .confirm-dialog-container #no-button{
+      height: 50px;
+      width: 50%;
+      background-color: #b6bece;
+
+      color:white;
+      border-radius: 0px;
+      }
+      
+      ::ng-deep    .confirm-dialog-container #yes-button{
+          height: 50px;
+          width: 50%;
+          background-color: #fc7169;
+
+          color:white;
+          border-radius: 0px;
+      }
+      
+      ::ng-deep .confirm-dialog-container span.content-span{
+          padding:  35px 16px;
+          text-align: center;
+          font-size: 20px;
+      }

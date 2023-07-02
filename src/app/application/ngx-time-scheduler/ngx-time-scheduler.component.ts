@@ -1,4 +1,4 @@
-import {ChangeDetectorRef, Component, ElementRef, Input, EventEmitter,Output, OnDestroy, OnInit, ViewChild,SimpleChanges} from '@angular/core';
+import {ChangeDetectorRef, Component, ElementRef, Input,  OnDestroy, OnInit, ViewChild,SimpleChanges} from '@angular/core';
 import {CdkDragDrop} from '@angular/cdk/drag-drop';
 import {NgxTimeSchedulerService} from './ngx-time-scheduler.service';
 import {
@@ -12,6 +12,7 @@ import {
   Text,
   Events,
 } from './ngx-time-scheduler.model';
+import Swal from 'sweetalert2';
 import * as moment_ from 'moment';
 import {Observable, Subscription} from 'rxjs';
 import 'moment/locale/fr'
@@ -25,15 +26,14 @@ import { ShowComponent } from '../task/show/show.component';
 
 
 
+
 @Component({
   selector: 'ngx-ts[items][periods][sections]',
   templateUrl: './ngx-time-scheduler.component.html',
   styleUrls: ['./ngx-time-scheduler.component.css'],
+
 })
 export class NgxTimeSchedulerComponent implements OnInit, OnDestroy {
-
-  task_id: number;
-  public show = true;
 
   @ViewChild('sectionTd') set SectionTd(elementRef: ElementRef) {
     if (elementRef) { // Vérifie si elementRef est défini
@@ -42,7 +42,6 @@ export class NgxTimeSchedulerComponent implements OnInit, OnDestroy {
     }
   }
 
-  @Output() refreshEmitter = new EventEmitter<boolean>();
   @Input() currentTimeFormat = 'DD-MMM-YYYY HH:mm';//The Moment format to use when displaying Tooltip information
   @Input() showCurrentTime = false;  /* Whether to show the Current Time or not */
   @Input() showGoto = true; /* Whether to show the Goto button */
@@ -52,7 +51,8 @@ export class NgxTimeSchedulerComponent implements OnInit, OnDestroy {
   @Input() locale = 'fr';
   @Input() showBusinessDayOnly = false;
   @Input() headerFormat = 'DD MMMM YYYY';  //The Moment format to use when displaying Header information
-  @Input() minRowHeight = 40;
+  @Input() minRowHeight = 80;
+  @Input() minRowHeightTask = 40;
   @Input() maxHeight: string = null;
   @Input() text = new Text();       /* Text to use when creating the scheduler */
   @Input() items: Item[];
@@ -62,14 +62,13 @@ export class NgxTimeSchedulerComponent implements OnInit, OnDestroy {
   @Input() start = moment().startOf('day');// The Moment to start the calendar
   today = moment().startOf('day');
   tasks : ITask[];
- // tasks: Observable<Array<ITask>>;
 
   end = moment().endOf('day');
   showGotoModal = false;                //modal de navigation par défaut false
   currentTimeIndicatorPosition: string; //Stocke la position actuelle de l'indicateur de temps
-  currentTimeVisibility = 'visible';    //visibilité de l'indicateur de temps
-  currentTimeTitle : String;            //Stocke le titre de l'indicateur de temps
-  ShowCurrentTimeHandle = null;         //Afficher l'heure actuelle
+ // currentTimeVisibility = 'visible';    visibilité de l'indicateur de temps
+ // currentTimeTitle : String;            //Stocke le titre de l'indicateur de temps
+//  ShowCurrentTimeHandle = null;         //Afficher l'heure actuelle
   SectionLeftMeasure = '0';             //Mesure de la section gauche
   currentPeriod: Period;                //variable qui stocke l'objet "Period" en cours
   currentPeriodMinuteDiff = 0;          //la différence en minutes entre deux périodes.
@@ -78,128 +77,120 @@ export class NgxTimeSchedulerComponent implements OnInit, OnDestroy {
   subscription = new Subscription();    //variable qui stocke une instance de la classe "Subscription" pour gérer des observables.
   eventOutput = '';
 
-  /*Resize the scheduler*/
+  /*Resize calendar*/
   sectionwidth=0;
   prevright=0;
   currright=0;
   itemHold: Item[]=[];  
-
   iTask : ITask[];
+
   constructor(
               private changeDetector: ChangeDetectorRef,
               private service: NgxTimeSchedulerService,
               private taskService: TaskService,
-              public  dialog: MatDialog,  
-  ) {
-  
-    moment.locale(this.locale);
-    
-  }
+              public  dialog: MatDialog, 
+            ) { }
 
-/**
- *  Dialog Overview
- */
-
-getTasks(): void {
-  this.taskService.getTaskList().subscribe( result => {
-    this.tasks = result;
-    this.items = [];
-    let i = 0;
-    this.tasks.forEach(tsk => {
-      tsk?.employee?.forEach(emp => {
-        let classe: string;
-        switch (tsk?.type) {
-          case 'Affecté':
-            classe = 'item-success';
-            break;
-          case 'Absent':
-            classe = 'item-warning';
-            break;
-          case 'Sans affectation':
-            classe = 'item-info';
-            break;
-            default:
-              classe = 'item-warning';
-        }
-        this.items.push({
-          id: i++,
-          id_task: tsk.id,
-          sectionID: parseInt(emp?.id),
-          name: tsk?.title,
-          start: moment(tsk?.startDate).startOf('day'),
-          end: moment(tsk?.endDate).endOf('day'),
-          classes: classe,
-         });
+    getTasks(): void {
+      this.taskService.getTaskList().subscribe( result => {
+        this.tasks = result;
+        this.items = [];
+        let i = 0;
+        this.tasks.forEach(tsk => {
+          tsk?.employee?.forEach(emp => {
+            let classe: string;
+            switch (tsk?.type) {
+              case 'Affecté':
+                classe = 'item-success';
+                break;
+              case 'Absent':
+                classe = 'item-warning';
+                break;
+              case 'Sans affectation':
+                classe = 'item-info';
+                break;
+                default:
+                  classe = 'item-warning';
+            }
+            this.items.push({
+              id: i++,
+              id_task: tsk.id,
+              sectionID: parseInt(emp?.id),
+              name: tsk?.title,
+              start: moment(tsk?.startDate).startOf('day'),
+              end: moment(tsk?.endDate).endOf('day'),
+              classes: classe,
+            });
+          });
+        });  
+      
       });
-    });
-  });
-}
-
+    }
+    /*******      Add  Task        *******/
     onOpenDialogAdd(id: number, date: string) {
       const dialogRef = this.dialog.open(AddComponent, {
-      data: {id, date}
-      // data: task,
+      data: {id, date},
+      height: '530px',
+      maxHeight: '550px',
+      width: '350px',
+      position: { top: "150px" , left: "730px" },
+
       });
-
-    dialogRef.afterClosed().subscribe((result) => {
-      this.getTasks();
-      this.refreshEmitter.emit(true);
-
-    });
-    
-  }
-    /****       Task */
-    onOpenDialogShow(task: ITask) {
-        const dialogRef = this.dialog.open(ShowComponent, {
-          data: task,
-       
-        });
-    
-        dialogRef.afterClosed().subscribe((result) => {
-          this.getTasks();
-          this.refreshEmitter.emit(true);
-        });
+ 
+      dialogRef.afterClosed().subscribe((result) => {
+        this.getTasks();  
+     
+      });
       
     }
+    /*******      Modification  Task        *******/
+    onOpenDialogShow(task: ITask) {
+        const dialogRef = this.dialog.open(ShowComponent, {
+          data:  task, 
+          height: '530px',
+          maxHeight: '550px',
+          width: '350px',
+          position: { top: "125px" , left: "730px" },
+        });
+        dialogRef.afterClosed().subscribe((result) => {
+          this.getTasks();  
+     
+        });
+    }
+
+    ngOnChanges(changes: SimpleChanges) {
+      if (changes['sections']) {
+        this.setSectionsInSectionItems();
+        this.getTasks();
+
+      }
+    }
+
+    ngOnInit(): void {
+      this.getTasks();
+      this.transferItem();
+     this.setSectionsInSectionItems();
+      this.changePeriod(this.periods[1], false);
+      this.refresh();
+    }
+    transferItem(){
+      //transfer items defined in app to this itemHold
+      this.itemHold=this.items;
+    }
     
-
-
-  ngOnChanges(changes: SimpleChanges) {
-    if (changes['sections']) {
+    /*Appelle la méthode "changePeriod()" avec le paramètre "currentPeriod" pour changer la période en cours
+    avec la valeur actuelle de "currentPeriod" et en passant "false" comme deuxième paramètre pour indiquer
+      que la période ne doit pas être modifiée.*/
+    refreshView() {
       this.setSectionsInSectionItems();
       this.getTasks();
-
+      this.changePeriod(this.currentPeriod, false);
+      
     }
-  }
-
-  ngOnInit(): void {
-    this.getTasks();
-    this.transferItem();
-//    this.setSectionsInSectionItems();
-    this.changePeriod(this.periods[1], false);
-    this.sectionPush();
-    this.sectionPop();
-    this.sectionRemove();
-    this.refresh();
-  }
-  transferItem(){
-    //transfer items defined in app to this library
-    this.itemHold=this.items;
-  }
-  
-  /*Appelle la méthode "changePeriod()" avec le paramètre "currentPeriod" pour changer la période en cours
-   avec la valeur actuelle de "currentPeriod" et en passant "false" comme deuxième paramètre pour indiquer
-    que la période ne doit pas être modifiée.*/
-  refreshView() {
-    this.setSectionsInSectionItems();
-    this.getTasks();
-    this.changePeriod(this.currentPeriod, false);
-    
-  }
-  // Fonction de performance qui permet de suivre chaque élément par son index dans le tableau
-  trackByFn(index, item) {
-    return index;
-  }
+    // Fonction de performance qui permet de suivre chaque élément par son index dans le tableau
+    trackByFn(index, item) {
+      return index;
+    }
 
    /*La fonction setSectionsInSectionItems() crée une liste de SectionItem. 
    Elle prend chaque objet section dans la liste sections, crée une nouvelle
@@ -217,24 +208,25 @@ getTasks(): void {
 
 
   }
-  getItemTooltip(itemMeta: any): string {
-    if (itemMeta.item.tooltip) {
-      return itemMeta.item.tooltip;
-    } else {
-      return '';
-    }
-  }
-  get methodedatapopup(){
+  // getItemTooltip(itemMeta: any): string {
+  //   if (itemMeta.item.tooltip) {
+  //     return itemMeta.item.tooltip;
+  //   } else {
+  //     return '';
+  //   }
+  // }
+  // get methodedatapopup(){
 
-    let event = {
-      title : "hello",
-      task : 'anatst',
-      date :'2023-12-15'
+  //   // let event = {
+  //   //   title : "hello",
+  //   //   task : 'anatst',
+  //   //   date :'2023-12-15'
 
-    }
+  //   // }
 
-    return JSON.stringify(event)
-  }
+  //   return JSON.stringify(event)
+  // }
+
     /*La fonction setItemsInSectionItems() est responsable de créer une liste d'objets ItemMeta
     pour chaque SectionItem créé précédemment. Elle boucle sur chaque SectionItem créé précédemment
     et crée une nouvelle liste d'objets ItemMeta correspondant à chaque élément de la liste items. 
@@ -253,7 +245,7 @@ getTasks(): void {
         if (i.sectionID === ele.section.id  ) {
           itemMeta.item = i;
           if (itemMeta.item.start <= this.end && itemMeta.item.end >= this.start  ) {
-            itemMeta = this.itemMetaCal(itemMeta,  );
+            itemMeta = this.itemMetaCal(itemMeta  );
             ele.itemMetas.push(itemMeta);
             itemMetas.push(itemMeta);
           }
@@ -311,7 +303,7 @@ getTasks(): void {
 
         for (let prev = 0; prev < i; prev++) {
           const prevElem = sortedItems[prop][prev];
-          const prevElemBottom = prevElem.cssTop + this.minRowHeight;
+          const prevElemBottom = prevElem.cssTop + this.minRowHeightTask ;
           elemBottom = elem.cssTop + this.minRowHeight;
 
           if ((
@@ -326,7 +318,7 @@ getTasks(): void {
           }
         }
 
-        elemBottom = elem.cssTop + this.minRowHeight + 1;
+        elemBottom = elem.cssTop + this.minRowHeight  + 1;
         if (this.sectionItems[Number(prop)] && elemBottom > this.sectionItems[Number(prop)].minRowHeight) {
           this.sectionItems[Number(prop)].minRowHeight = elemBottom;
         }
@@ -334,8 +326,15 @@ getTasks(): void {
     }
   }
 
+  /*changePeriod  pour changer la période affichée dans le calendrier. Elle prend en paramètre un objet 
+  Period qui représente la nouvelle période à afficher, ainsi que deux paramètres  userTrigger et useMoment.
+  Si useMoment est true, la fonction utilise la bibliothèque Moment.js pour définir les valeurs de start et end 
+  en fonction de la période sélectionnée.
+  Si userTrigger est true et la fonction PeriodChange est définie dans this.events, alors la fonction PeriodChange est appelée
+  avec start et end comme arguments. Cela permet de déclencher un événement lorsque la période est modifiée.
+  */
 
-changePeriod(period: Period, userTrigger: boolean = true, useMoment: boolean = true) {
+  changePeriod(period: Period, userTrigger: boolean = true, useMoment: boolean = true) {
   this.currentPeriod = period;
   if(useMoment){
     if (this.currentPeriod.name === 'Mois') {
@@ -367,26 +366,26 @@ changePeriod(period: Period, userTrigger: boolean = true, useMoment: boolean = t
     });
   
     this.setItemsInSectionItems();
-    this.showCurrentTimeIndicator();
+   // this.showCurrentTimeIndicator();
   }
 
-  showCurrentTimeIndicator = () => {
-    if (this.ShowCurrentTimeHandle) {
-      clearTimeout(this.ShowCurrentTimeHandle);
-    }
+  // showCurrentTimeIndicator = () => {
+  //   if (this.ShowCurrentTimeHandle) {
+  //     clearTimeout(this.ShowCurrentTimeHandle);
+  //   }
 
-    const currentTime = moment();
-    if (currentTime >= this.start && currentTime <= this.end) {
-      this.currentTimeVisibility = 'visible';
-      this.currentTimeIndicatorPosition = (
-        (Math.abs(this.start.diff(currentTime, 'minutes')) / this.currentPeriodMinuteDiff) * 100
-      ) + '%';
-      this.currentTimeTitle = currentTime.format(this.currentTimeFormat);
-    } else {
-      this.currentTimeVisibility = 'hidden';
-    }
-    this.ShowCurrentTimeHandle = setTimeout(this.showCurrentTimeIndicator, 30000);
-  }
+  //   const currentTime = moment();
+  //   if (currentTime >= this.start && currentTime <= this.end) {
+  //     this.currentTimeVisibility = 'visible';
+  //     this.currentTimeIndicatorPosition = (
+  //       (Math.abs(this.start.diff(currentTime, 'minutes')) / this.currentPeriodMinuteDiff) * 100
+  //     ) + '%';
+  //     this.currentTimeTitle = currentTime.format(this.currentTimeFormat);
+  //   } else {
+  //     this.currentTimeVisibility = 'hidden';
+  //   }
+  //   this.ShowCurrentTimeHandle = setTimeout(this.showCurrentTimeIndicator, 30000);
+  // }
 
   gotoToday() {
     this.start = moment(this.start).startOf('day');
@@ -467,13 +466,13 @@ changePeriod(period: Period, userTrigger: boolean = true, useMoment: boolean = t
         prev = headerDetails.name;
         headerDetails.colspan = colspan;
         headerDetails.tooltip = this.currentPeriod.timeFrameHeadersTooltip && this.currentPeriod.timeFrameHeadersTooltip[index] ?
-          now.locale(this.locale).format(this.currentPeriod.timeFrameHeadersTooltip[index]) : '';
+        now.locale(this.locale).format(this.currentPeriod.timeFrameHeadersTooltip[index]) : '';
         headerDetails.fullDate = now.locale(this.locale).format(this.currentPeriod.currentDate[index]);
         dates.headerDetails.push(headerDetails);
-   
       }
       now.add(this.currentPeriod.timeFramePeriod, 'minutes');
     }
+
     return dates;
   }
 
@@ -490,55 +489,9 @@ changePeriod(period: Period, userTrigger: boolean = true, useMoment: boolean = t
   }
 
   drop(event: CdkDragDrop<Section>) {
-   event.item.data.sectionID = event.container.data.id;
+  // event.item.data.sectionID = event.container.data.id;
     this.refreshView();
     this.events.ItemDropped(event.item.data);
-  }
-
-  itemPush() {
-    this.subscription.add(this.service.itemAdd.asObservable().subscribe((item: Item) => {
-      this.items.push(item);
-      this.refreshView();
-    }));
-  }
-
-  itemPop() {
-    this.subscription.add(this.service.item.asObservable().subscribe(() => {
-      this.items.pop();
-      this.refreshView();
-    }));
-  }
-
-  // itemRemove() {
-  //   this.subscription.add(this.service.itemId.asObservable().subscribe((itemId: number) => {
-  //     this.items.splice(this.items.findIndex((item) => {
-  //       return item.id === itemId;
-  //     }), 1);
-  //     this.refreshView();
-  //   }));
-  // }
-
-  sectionPush() {
-    this.subscription.add(this.service.sectionAdd.asObservable().subscribe((section: Section) => {
-      this.sections.push(section);
-      this.refreshView();
-    }));
-  }
-
-  sectionPop() {
-    this.subscription.add(this.service.section.asObservable().subscribe(() => {
-      this.sections.pop();
-      this.refreshView();
-    }));
-  }
-
-  sectionRemove() {
-    this.subscription.add(this.service.sectionId.asObservable().subscribe((sectionId: number) => {
-      this.sections.splice(this.sections.findIndex((section) => {
-        return section.id === sectionId;
-      }), 1);
-      this.refreshView();
-    }));
   }
 
   refresh() {
@@ -553,60 +506,89 @@ changePeriod(period: Period, userTrigger: boolean = true, useMoment: boolean = t
     }
   }
 
+
+
+  onResizeStart(event: ResizeEvent,itemmeta): void {
+      //console.log('Element start resized' +  JSON.stringify(event) + " , itemmeta "+ JSON.stringify(itemmeta) + " , section "+ JSON.stringify(sectionitem));
+    let dtstart = moment(itemmeta.item.start); //extrait la date début de l'élement redimentionné
+    let dtend = moment(itemmeta.item.end); //extrait la date fin de l'élement redimentionné
+      
+    //in case the items are ovelapping
+    if(dtstart< this.start){
+      dtstart=this.start;
+    }
   
-  async onResizeEnd(event: ResizeEvent,itemmeta) {
+    let daysinbtween= Number(dtend.diff(dtstart,'days') +1); //calcule le nombre de jours entre les dates de début et de fin 
+    //console.log("days in between are-"+daysinbtween);
+    let rectwwidth= Number(event.rectangle.width); //Elle extrait la largeur du rectangle de redimensionnement
+    //console.log("Rect width is "+rectwwidth + " , each sec is "+ (rectwwidth/daysinbtween));
+    //to calculate how far the item was dragged
+    this.sectionwidth=rectwwidth/daysinbtween; //la largeur d'une section (une unité de temps) lors du redimensionnement.
+    this.prevright =  Number(event.rectangle.right); //enregistre la position de droite précédente
+    //this.events.ItemResizeStart(itemmeta.item);
+    }
+
+   async onResizeEnd(event: ResizeEvent,itemmeta) {
     
     // console.log('Element was resized' +  JSON.stringify(event) + " , itemmeta "+ JSON.stringify(itemmeta) + " , section "+ JSON.stringify(sectionitem));
      //find out previous and current 
-     this.currright =  Number(event.rectangle.right);
-     let cursorMoved=this.currright- this.prevright;
-     let datesMoved= (cursorMoved/this.sectionwidth);
-     var movedEndDt;
+     this.currright =  Number(event.rectangle.right);//extrait la position de droite de l'élément redimensionné.
+     let cursorMoved=this.currright - this.prevright;//la distance parcourue par le curseur lors du redimensionnement.
+     let datesMoved= (cursorMoved / this.sectionwidth);
+     let movedEndDt;
      //console.log("Units moved "+ Math.ceil(datesMoved));
      //add end date to itemmeta;
      await this.calcEndLoction(itemmeta,datesMoved);
+
+      // Show an alert to indicate successful resizing
+      const swalWithTimeout = Swal.mixin({
+        showConfirmButton: false,
+        timer: 1500,
+        timerProgressBar: true
+      });
+      
+      swalWithTimeout.fire({
+        icon: 'success',
+        title: 'Redimensionnement terminé !',
+        text: 'L\'affectation a été redimensionné avec succès.'
+      });
+      
      this.events.ItemResizedEnd(itemmeta.item,itemmeta.item.start,movedEndDt);
+    
    }
- 
+
    async calcEndLoction(itemmeta,datesMoved){
-     return new Promise(  (res, rej)  => {
-       var movedEndDt;
+     return new Promise(  async (res, rej)  => {
+       let movedEndDt;
        for(let i=0;i<=this.itemHold.length;i++){
          //console.log("Itemhold is "+this.itemHold[i].id)
-         if(this.itemHold[i].id== itemmeta.item.id){
+         if(this.itemHold[i].id == itemmeta.item.id){
            //console.log("Found item1- "+this.itemHold[i].end);
-           movedEndDt = moment(itemmeta.item.end).add(Math.ceil(datesMoved),'days').endOf('day');
-           this.itemHold[i].end = moment(itemmeta.item.end).add(Math.ceil(datesMoved),'days').endOf('day');
-           // console.log("Found item2- "+this.itemHold[i].end);
-           break;
-         }//end of if
-       }//end of for  
+           movedEndDt = moment(itemmeta.item.end).add(Math.ceil(datesMoved),'days').startOf('day');
+           this.itemHold[i].end = moment(itemmeta.item.end).add(Math.ceil(datesMoved),'days').endOf('day')
+          //console.log("Found item2- "+this.itemHold[i].end);
+
+          let currentTask = this.itemHold[i];
+          this.taskService.getTaskById(currentTask.id_task).subscribe(task1 => {
+            if ( task1 !== null && task1 !== undefined ) {
+              task1.endDate = movedEndDt;
+              this.taskService.updateTask(task1, task1.id).subscribe(result => {
+
+              })
+            }
+          })
+  
+          break;
+        }//end of if
+      }//end of for 
        this.refreshView();
        //console.log("Calculation done");
        res({'status':'done'})
      });
- 
    }
- 
-   onResizeStart(event: ResizeEvent,itemmeta): void {
-     //console.log('Element start resized' +  JSON.stringify(event) + " , itemmeta "+ JSON.stringify(itemmeta) + " , section "+ JSON.stringify(sectionitem));
-    let dtstart = moment(itemmeta.item.start);
-    let dtend = moment(itemmeta.item.end);
-     
-    //in case the items are ovelapping
-    if(dtstart< this.start){
-     dtstart=this.start;
-    }
+    
+
   
-    let daysinbtween= Number(dtend.diff(dtstart,'days') +1);
-    //console.log("days in between are-"+daysinbtween);
-    let rectwwidth= Number(event.rectangle.width);
-    //console.log("Rect width is "+rectwwidth + " , each sec is "+ (rectwwidth/daysinbtween));
-    //to calculate how far the item was dragged
-    this.sectionwidth=rectwwidth/daysinbtween;
-    this.prevright =  Number(event.rectangle.right);
-    this.events.ItemResizeStart(itemmeta.item);
-    }
     async callRefreshwDelay(ms: number){
       await this.delay(ms);
       this.refreshView();

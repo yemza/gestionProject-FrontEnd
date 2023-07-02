@@ -11,7 +11,7 @@ import { SharedModule } from 'src/app/_shared/shared.module';
     CommonModule,
     DragDropModule,
     ResizableModule,
-    SharedModule
+    SharedModule,
   ],
   exports: [NgxTimeSchedulerComponent]
 })

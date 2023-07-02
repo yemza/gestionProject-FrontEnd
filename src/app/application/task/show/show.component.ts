@@ -1,11 +1,12 @@
 import { Component, AfterViewInit, Inject, OnInit ,Output,EventEmitter } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MatDialogRef, MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog';
 import { TaskService } from 'src/app/_core/_services/task.service';
 import { Employee } from 'src/app/_shared/models/employee.model';
 import { ITask, ITaskTypeOption } from 'src/app/_shared/models/task.interface';
 import { startWith, map } from 'rxjs/operators';
 import { Observable } from 'rxjs';
+import { ConfirmationDialogComponent } from '../confirmation-dialog/confirmation-dialog.component';
 
 
 @Component({
@@ -21,7 +22,6 @@ export class ShowComponent implements OnInit {
   filteredEmployees: Observable<Employee[]>;
   filteredTasks: Observable<ITask[]>;
   task: ITask;
-  public show = true;
   tasks : ITask[] = [];
 
   constructor(
@@ -30,15 +30,17 @@ export class ShowComponent implements OnInit {
     public data: {id_task, date}, 
     private taskService : TaskService,
     private fb : FormBuilder,
-  ) { }
+    private dialog: MatDialog,
+
+  ) {}
 
   ngOnInit(): void {
 
     this.taskForm = this.fb.group({
 
-      title: ['', Validators.required ],
+      title: ['', Validators.required],
       startDate: [new Date(this.data.date), Validators.required],
-      endDate: [new Date(this.data.date), Validators.required],
+      endDate: [new Date(this.data.date),Validators.required],
       type: ['', Validators.required],
       description: [''],
     });
@@ -56,7 +58,7 @@ export class ShowComponent implements OnInit {
         console.error(error);
       }
     );
-   
+
     /* validation et de réinitialisation du champ "title" en fonction de la valeur sélectionnée dans le champ "type"*/
     this.taskForm.get('type').valueChanges.subscribe((value) => {
       if (value === 'Absent' || value === 'Sans affectation') {
@@ -65,13 +67,12 @@ export class ShowComponent implements OnInit {
       } else {
         this.taskForm.get('title').setValidators([Validators.required]);
       }
-      this.taskForm.get('title').updateValueAndValidity();
+        this.taskForm.get('title').updateValueAndValidity();
     }); 
     
     (error) => {
       console.error(error);
     }
-
     this.showTask();
   
     }
@@ -80,14 +81,19 @@ export class ShowComponent implements OnInit {
       this.dialogRef.close();
     }
 
-
   
-    // Fonction filterEmployees: Filtrer les employés en fonction de la valeur saisie
+    // Fonction filterTasks: Filtrer les tasks en fonction de la valeur saisie
     filterTasks(values: string): ITask[] {
-      const filterValues = this.normalizeValues(values);
-      return this.tasks.filter((task) => this.normalizeValues(task.title).includes(filterValues));
-    }
-
+      // Normaliser la valeur saisie en minuscules et en supprimant les espaces
+        const filterValues = this.normalizeValues(values);
+      // Filtration des affaires en vérifiant si leur titre normalisé inclut la valeur filtrée et n'est pas vide
+        return this.tasks.filter((task) => {
+          const normalizedTitle = this.normalizeValues(task.title);
+      // Vérifier si le titre normalisé inclut la valeur filtrée et n'est pas vide
+          return normalizedTitle.includes(filterValues) && normalizedTitle.length > 0;
+        });
+      }
+    
     normalizeValues(values: string): string {
       return values.toLowerCase().replace(/\s/g, '');
     }
@@ -106,7 +112,6 @@ export class ShowComponent implements OnInit {
           this.taskForm.controls['endDate'].setValue(new Date(d.endDate).toISOString());
           this.taskForm.controls['description'].setValue(d.description);
 
-          //this.taskForm.controls['employee'].setValue(d.employee);
         },
           (error) => console.error(error)
         );
@@ -118,38 +123,45 @@ export class ShowComponent implements OnInit {
       this.taskService.updateTask(this.taskForm.value, this.data.id_task).subscribe(
 
         (d) => {
-          this.dialogRef.close();
 
-         // this.reloadData();
-        // window.location.reload(); // Recharger la page entière
+        this.dialogRef.close();
+         window.location.reload();
 
-//         this.showTask(); // Update the tasks array
         },
         (error) => console.error(error)
       );  
 
     }
-  
+
     onDeleteTask() {
           this.taskService.deleteTask(this.data.id_task).subscribe(
             (d) => {
               this.dialogRef.close();
-             window.location.reload();
-             //this.reloadData();
-
-           //  this.showTask(); // Update the tasks array
-
+              window.location.reload();
 
             },
             (error) => console.error(error)
           );
     }
+    openConfirmationDialog(): void {
+      const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
+       
+        panelClass: 'confirm-dialog-container',
+        disableClose: true,
+        position: { top: "325px" , left: "600px" },
 
-    // reloadData() {
-    //   this.show = false;
-    //   setTimeout(() => {
-    //     this.show = true;
-    //     this.showTask(); // Recharge les données de la tâche
+        maxHeight: '200px',
+        // maxWidth: AUTO_STYLE,
+        data: 'Êtes-vous sûr de vouloir supprimer cette Affectation ?'
+      });
+    
+      dialogRef.afterClosed().subscribe(result => {
+        if (result) {
 
-    //   }); }
+          this.onDeleteTask();
+        }
+      });
+    }
+    
+
 }

@@ -12,10 +12,9 @@ export class  employee {
   private apiUrl = 'http://localhost:8081/api/employees';
 
   constructor(private http: HttpClient) { }
- token = "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbiIsImlhdCI6MTY4MDk5NjMzMSwiZXhwIjoxNjgxMDgyNzMxfQ.yCNx9z7Qa0kFwEWMgjxKnHt_oAb3GgLKURgwJMusr-V9sMGx3kkQaTpbGAG6L66BwRXOLKQQnwAXzXcMsyHT5w"
+
   getAllEmployee()  {
-    const headers = new HttpHeaders().set('Authorization', `Bearer ${this.token}`);
-    return this.http.get("http://localhost:8081/api/employees/all",{headers});
+    return this.http.get("http://localhost:8081/api/employees/all");
   }
   // getAllEmployee(): Observable<Employee[]> {
   //   return this.http.get<Employee[]>(`${this.apiUrl}/all`);

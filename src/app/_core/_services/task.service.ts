@@ -5,7 +5,6 @@ import { Observable } from 'rxjs';
 import {
   ITask,
   ITaskTypeOption,
-  ITypePercentage,
 } from '../../_shared/models/task.interface';
 
 @Injectable({
@@ -37,12 +36,6 @@ export class TaskService {
   getTaskById(id: string): Observable<ITask> {
     return this.httpclient
       .get(`http://localhost:8081/api/v1/task/${id}` )
-  }
-
-  getTypePercentage(): Observable<Array<ITypePercentage>> {
-    return this.httpclient
-      .get(`http://localhost:8081/api/v1/task/vData/percentcounttype`)
-      .pipe(map((d: Array<ITypePercentage>) => d));
   }
 
   getTypeOptions(): Array<ITaskTypeOption> {

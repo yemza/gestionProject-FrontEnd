@@ -1,7 +1,7 @@
 import { Employee } from "./employee.model";
 
 interface ITask {
-  id?: string | number;
+  id?: string;
   title?: string;
   type?: string;
   startDate?: Date;
@@ -9,19 +9,13 @@ interface ITask {
   endDate?: Date;
   description?: string;
   employee?: Employee[];
- // ghdalaid: number;
 
 
 }
   
-
-
 interface ITaskTypeOption {
   type: string;
 }
-interface ITypePercentage {
-  count: number;
-  type: string;
-}
 
-export { ITask, ITaskTypeOption, ITypePercentage };
+
+export { ITask, ITaskTypeOption };

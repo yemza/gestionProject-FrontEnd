@@ -1,5 +1,6 @@
 /* You can add global styles to this file, and also import other style files */
 @import '@angular/material/prebuilt-themes/indigo-pink.css';
+@import "bootstrap-icons/font/bootstrap-icons.css";
 
   .mat-form-field-flex {
     background-color: white !important;
@@ -10,14 +11,21 @@
     width:100%;
   }
   textarea {
-    height: 150px !important;
+    height: 90px !important;
+  }
+  ::ng-deep .mat-mdc-dialog-container .mdc-dialog__surface {
+    display: block;
+    width: 103%;
+    height: 94%;
   }
 
+  body {
+    margin: 0;
+    overflow: hidden;
+  }
 
-body {
-  margin: 0;
-}
-
-mat-tab-body {
-  margin: 8px;
-}
+  mat-tab-body {
+    margin: 8px;
+  }
+    
+   

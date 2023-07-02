@@ -10,12 +10,16 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { FormsModule } from '@angular/forms';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatSelectModule } from '@angular/material/select';
+import { ConfirmationDialogComponent } from './application/task/confirmation-dialog/confirmation-dialog.component';
+import { NgScrollbarModule } from 'ngx-scrollbar';
+import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/compiler';
 
 @NgModule({
   declarations: [
     AppComponent,
 
   ],
+
   imports: [
     BrowserModule,
     BrowserAnimationsModule,
@@ -26,11 +30,13 @@ import { MatSelectModule } from '@angular/material/select';
     FormsModule,
     ReactiveFormsModule,
     MatSelectModule,
+    NgScrollbarModule
 
   ],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true }
   ],
-  bootstrap: [AppComponent]
+  bootstrap: [AppComponent],
+  entryComponents: [ConfirmationDialogComponent]
 })
 export class AppModule { }

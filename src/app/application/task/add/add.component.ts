@@ -1,6 +1,6 @@
 
 import {Component, Inject,OnInit} from '@angular/core';
-import { FormBuilder, FormGroup, Validators,  } from '@angular/forms';
+import { AbstractControl, FormBuilder, FormGroup,  Validators,  } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
 import { TaskService } from 'src/app/_core/_services/task.service';
 import { ITask, ITaskTypeOption } from 'src/app/_shared/models/task.interface';
@@ -23,7 +23,7 @@ export class AddComponent implements OnInit {
   filteredTasks: Observable<ITask[]>;
   tasks : ITask[] = [];
   task: ITask;
-  public show = true;
+
 
   constructor(
       public dialogRef: MatDialogRef<AddComponent>,
@@ -36,17 +36,21 @@ export class AddComponent implements OnInit {
 
 
   ngOnInit(): void {
+    const year2023 = new Date(2023, 0, 1);
 
     this.taskForm = this.fb.group({
       //id: [this.data.id],
+
       title: ['', Validators.required ],
-      startDate: [new Date(this.data.date), Validators.required],
-      endDate: [new Date(this.data.date), Validators.required],
+      startDate: [new Date(this.data.date), [Validators.required,this.dateValidator(year2023)]],
+      endDate: ['', [Validators.required, this.dateValidator(year2023)]],
       type: ['', Validators.required],
       description: [''],
       employee: ['', Validators.required],
+
      },
     );
+   
     this.typeOptions = this.taskService.getTypeOptions();
     this.taskService.getTaskList().subscribe(
       (result: ITask[]) => {
@@ -99,7 +103,7 @@ export class AddComponent implements OnInit {
    
   }
 
-    
+        
         // Fonction filterEmployees: Filtrer les employés en fonction de la valeur saisie
         filterEmployees(value: string): Employee[] {
         // Normaliser la valeur saisie en supprimant les espaces et en mettant en minuscule
@@ -113,14 +117,16 @@ export class AddComponent implements OnInit {
           return value.toLowerCase().replace(/\s/g, '');
         }
         
-      // Fonction filterTasks: Filtrer les tasks en fonction de la valeur saisie
+     // Fonction filterTasks: Filtrer les tasks en fonction de la valeur saisie
       filterTasks(values: string): ITask[] {
-        // Check if the value is null or undefined
-       
+      // Normaliser la valeur saisie en minuscules et en supprimant les espaces
         const filterValues = this.normalizeValues(values);
-        return this.tasks.filter((task) =>
-          this.normalizeValues(task.title).includes(filterValues)
-        );
+      // Filtration des affaires en vérifiant si leur titre normalisé inclut la valeur filtrée et n'est pas vide
+        return this.tasks.filter((task) => {
+          const normalizedTitle = this.normalizeValues(task.title);
+      // Vérifier si le titre normalisé inclut la valeur filtrée et n'est pas vide
+          return normalizedTitle.includes(filterValues) && normalizedTitle.length > 0;
+        });
       }
 
       // Fonction normalizeValue: Normaliser une valeur en minuscules et en supprimant les espaces
@@ -128,19 +134,19 @@ export class AddComponent implements OnInit {
         return values.toLowerCase().replace(/\s/g, '');
       }
       
-        //vérifie si une date donnée est valide pour être sélectionnée dans le sélecteur de date de fin.
-      // Elle compare cette date avec la date de début et retourne true si elle est supérieure ou égale à la date de début
-      filterDates = (date: Date ): boolean => {
-        const startDate = this.taskForm.controls.startDate.value;
-        return !startDate || date >= startDate;
-      };
-
       //fonction pour annuler la validation du formulaire
         onNoClick(): void {
           this.dialogRef.close();
         }
-    
-      addTask() {
+        //fonction de validation de la saisie de date du formulaire à partir de 2023
+        dateValidator(minDate: Date) {
+          return (control) => {
+            const selectedDate = new Date(control.value);
+            return selectedDate >= minDate ? null : { dateBefore: true };
+          };
+        }
+
+        addTask() {
         if (this.taskForm.valid) {
         // Récupérer la valeur saisie dans le champ "employee" du formulaire
           let empName = this.taskForm.get('employee').value;
@@ -159,10 +165,9 @@ export class AddComponent implements OnInit {
           };
             this.taskService.postTaskList(this.task, empData ? empData?.id : this.data.id).subscribe(
           (d) => {    
-                       
+         
             this.dialogRef.close();
-           // this.reloadData();    
-
+            window.location.reload();
           },
           (error) => {
             console.error(error);
@@ -172,9 +177,5 @@ export class AddComponent implements OnInit {
       
   }
   
-  // reloadData() {
-  //   this.show = false;
-  //   setTimeout(() => {
-  //     this.show = true;
-  //   }); }
+  
 }

@@ -6,7 +6,6 @@ import { Observable } from 'rxjs';
 import { TokenStorageService } from '../_services/token-storage.service';
 
 const TOKEN_HEADER_KEY = 'Authorization';       // for Spring Boot back-end
-// const TOKEN_HEADER_KEY = 'x-access-token';   // for Node.js Express back-end
 
 @Injectable()
 export class AuthInterceptor implements HttpInterceptor {
@@ -20,9 +19,8 @@ export class AuthInterceptor implements HttpInterceptor {
     if (this.tokenn) {
       // for Spring Boot back-end
       authReq = req.clone({ headers: req.headers.set(TOKEN_HEADER_KEY, 'Bearer ' + this.tokenn) });
-            console.log("Token: ",this.tokenn)
-      // for Node.js Express back-end
-      // authReq = req.clone({ headers: req.headers.set(TOKEN_HEADER_KEY, token) });
+            //console.log("Token: ",this.tokenn)
+
     }
     return next.handle(authReq);
   }

@@ -1,12 +1,16 @@
 
 <div class="header" >
-  <h1>Affaire</h1>
+  <h1>Affectation</h1>
+  <button mat-icon-button color="warn"  type="button" (click)="openConfirmationDialog()">
+    <mat-icon>delete</mat-icon>
+  </button>
+  
 </div>
 
 <div class="update-task">
   <div class="content">
     <form [formGroup]="taskForm" (submit)="updateTask()" >
-      
+
       <mat-form-field appearance="fill">
         <mat-label>Type</mat-label>
         <mat-select formControlName="type" >
@@ -14,8 +18,8 @@
         </mat-select>
       </mat-form-field>
       <mat-form-field *ngIf="taskForm.get('type').value === 'Affecté'">
-       <mat-label>Nom de l'affaire</mat-label>
-       <input matInput placeholder="Rechercher une affaire" formControlName="title" [matAutocomplete]="auto" />
+       <mat-label>Nom de l'affectation</mat-label>
+       <input matInput placeholder="Rechercher une affectation" formControlName="title" [matAutocomplete]="auto" />
        <mat-autocomplete #auto="matAutocomplete">
          <mat-option *ngFor="let ITask of filteredTasks | async" [value]="ITask.title">
            {{ ITask.title }}
@@ -26,8 +30,8 @@
        <mat-form-field appearance="fill">
         <mat-label>Entrez une plage de dates</mat-label>
         <mat-date-range-input [rangePicker]="picker">
-          <input matStartDate placeholder="startDate" formControlName="startDate">
-          <input matEndDate placeholder="endDate"   formControlName="endDate">
+          <input matStartDate placeholder="Date début" formControlName="startDate">
+          <input matEndDate placeholder="Date fin"   formControlName="endDate">
         </mat-date-range-input>
         <mat-hint>DD/MM/YYYY – DD/MM/YYYY</mat-hint>
         <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
@@ -52,7 +56,7 @@
        >
         Modifier
       </button>
-      <button mat-raised-button color="warn" (click)="onDeleteTask()">Supprimer</button>
+
       <button mat-raised-button color="Warn" type="button" (click)="onNoClick()" >Annuler</button>
 
     </form>

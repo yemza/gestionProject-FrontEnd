@@ -3,22 +3,19 @@
 
 }
 
+
 .header {
-  color: #FFFFFF;
-
+  background: #f3f5fa;
+  height: 80px;
 }
+
 .header h1 {
-  background: rgb(2, 136, 209);
-
-  padding: 20px 12px 20px 12px;
+  padding: 15px 0px 19px 12px;
+  font-size: 2rem;
 }
 
-::ng-deep .mat-mdc-dialog-container {
-  position: absolute;
-  display: block;
-  left: 41%;
-  right: 50%;
-  height: 68%;
-  width: 26%;
-  top: 11%;
+.header button{
+  padding: 5px;
+  left: 293px;
+  top: -74%;
 }

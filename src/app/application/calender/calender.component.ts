@@ -44,13 +44,6 @@ export class CalenderComponent implements OnInit {
        // this.onOpenDialog(task); // Appeler la méthode onOpenDialog avec l'objet Item sélectionné
       };
       
-      this.events.ItemContextMenu = (item, {x, y}: MouseEvent) => {
-        // console.log("Coming here 1"+ JSON.stringify(item) + " ," + JSON.stringify({x, y}));
-        this.eventOutput += '\n' + JSON.stringify(item) + ',' + JSON.stringify({x, y});
-      };
-      this.events.ItemDropped = (item) => {
-        this.eventOutput += '\n' + JSON.stringify(item);
-      };
       this.events.PeriodChange = (start, end) => {
         this.eventOutput += '\n' + JSON.stringify(start) + ',' + JSON.stringify(end);
       };
@@ -69,15 +62,15 @@ export class CalenderComponent implements OnInit {
 
       {   
         name: 'Semaine',
-        timeFrameHeaders: ['MMMM  yyyy',' w','DD(ddd)'],
+        timeFrameHeaders: ['MMMM  yyyy',' w','D(ddd)'],
         classes: '',
         timeFramePeriod: 1440, // durée de chaque période de temps en minutes (7 jours)
         currentDate: ['', '', 'YYYY-MM-DD']
       },
       {
         name: 'Mois',//le nom de la vue, dans ce cas "Month".
-        timeFrameHeaders: ['MMMM  yyyy','  w', 'DD'],//les en-têtes de temps pour chaque période de temp
-        timeFrameHeadersTooltip: ['MMM yyyy', ' w', 'dddd'],
+        timeFrameHeaders: ['MMMM  yyyy','  W', 'D'],//les en-têtes de temps pour chaque période de temp
+        timeFrameHeadersTooltip: ['MMM yyyy', ' W', 'dddd'],
         classes: '',
         timeFramePeriod: 1440 , // durée de chaque période de temps en minutes 
         currentDate: ['', '', 'YYYY-MM-DD']
@@ -94,21 +87,15 @@ export class CalenderComponent implements OnInit {
 
 }
 
-
-/****************Get Employee  **************** */
+/****************Get Employees  **************** */
 
   ngOnInit() {
     this.employee.getAllEmployee().subscribe(
       (res: Section[]) => {
-        console.log(res);
         this.sections = res;
-    //    this.addItem();
-
       }
-
     );
     this.getTasks();
-
   }
  
 /****************Get Tasks  **************** */
@@ -150,18 +137,8 @@ export class CalenderComponent implements OnInit {
 
   }
    
-    // AfterViewInit(){
-    //   this.getTasks();
-    // }
-
-    // reload(){
-    //  this.getTasks();  
-    // }
-
     refresh() {
-  
       this.service.refresh();
-    //  this.getTasks();
     }
 }
 

@@ -29,4 +29,12 @@ export class AuthService {
       password: user.password
     }, httpOptions);
   }
+  loggedIn() {
+    let token = localStorage.getItem('jwt');
+    if (token) {
+        return true;
+    } else {
+        return false;
+    }
+}
 }

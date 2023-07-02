@@ -15,7 +15,7 @@ export class Period {
  la date de fin, les classes CSS, l'identifiant de section parente, et les informations de tooltip optionnelles.*/
 export class Item {
   id: number;
-  id_task: number | string;
+  id_task:  string;
   name: string;
   start: moment.Moment;
   end: moment.Moment;
@@ -36,18 +36,13 @@ export class Section {
 
 /*Text: Une classe contenant des textes localisés pour les boutons et les titres du planificateur.*/
 export class Text {
-  NextButton: string;
-  PrevButton: string;
   TodayButton: string;
-  GotoButton: string;
   SectionTitle: string;
   SectionProfile: string;
 
   constructor() {
-    this.NextButton = 'Suivant'; /* Text to use when creating the scheduler */
-    this.PrevButton = 'Précédent';
+ /* Text to use when creating the scheduler */
     this.TodayButton = "Aujourd'hui";
-    this.GotoButton = 'Aller à';
     this.SectionTitle = 'Ressources';
     this.SectionProfile= 'Profil';
   }
@@ -116,4 +111,5 @@ export class HeaderDetails {
   colspan: number;
   tooltip?: string;
   fullDate?: string;
+  isToday: boolean;
 }

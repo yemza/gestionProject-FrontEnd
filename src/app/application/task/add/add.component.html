@@ -1,8 +1,9 @@
-<div class="header" *ngIf="show">
-  <h1>Créer une affaire</h1>
+
+<div class="header">
+  <h1>Créer une affectation</h1>
 </div>
 
-<div class="add-task"  >
+<div class="add-task" >
 <div class="content" >
   <form [formGroup]="taskForm" (submit)="addTask()"  >
     <mat-form-field appearance="fill">
@@ -13,8 +14,8 @@
     </mat-form-field>
     
     <mat-form-field *ngIf="taskForm.get('type').value === 'Affecté'">
-     <mat-label>Nom de l'affaire</mat-label>
-     <input matInput placeholder="Rechercher une affaire" formControlName="title" [matAutocomplete]="auto" />
+     <mat-label>Nom de l'affectation</mat-label>
+     <input matInput placeholder="Rechercher une affectation" formControlName="title" [matAutocomplete]="auto" />
      <mat-autocomplete #auto="matAutocomplete">
        <mat-option *ngFor="let ITask of filteredTasks | async" [value]="ITask.title">
          {{ ITask.title }}
@@ -35,13 +36,13 @@
     <mat-form-field appearance="fill">
       <mat-label>Entrez une plage de dates</mat-label>
       <mat-date-range-input [rangePicker]="picker">
-        <input matStartDate placeholder="startDate" formControlName="startDate" >
-        <input matEndDate placeholder="endDate"  formControlName="endDate">
+        <input matStartDate placeholder="Date début" formControlName="startDate">
+        <input matEndDate placeholder="Date fin" formControlName="endDate">
       </mat-date-range-input>
       <mat-hint>DD/MM/YYYY – DD/MM/YYYY</mat-hint>
-      <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+      <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
       <mat-date-range-picker #picker></mat-date-range-picker>
-    </mat-form-field> 
+    </mat-form-field>
 
     <mat-form-field>
       <mat-label>Description</mat-label>

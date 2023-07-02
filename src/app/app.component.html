@@ -1,60 +1,49 @@
 <div id="app">
 
- 
-  
-<!--<mat-dialog-actions>
-  <button mat-raise-button color ="primary" (click)="openDialog()">Add Event</button>
-</mat-dialog-actions> -->
 
     <nav class="navbar navbar-expand navbar-dark bg-dark">  
 
-      <a href="#" class="navbar-brand">ORDO</a>
+      <a  href="/"></a>
+
+      <a  href="https://www.sully-group.com" target="_blank"  class="navbar-brand" >
+        <img src="../assets/logo_ordo.png" alt="Logo" class="logo" 
+        height="130" style=" margin: -47px -23px -46px -18px;">
+      </a>
       <ul class="navbar-nav mr-auto" routerLinkActive="active">
         <li class="nav-item">
-          <a href="/home" class="nav-link" routerLink="application/home">Home </a>
+          <a href="" class="nav-link" routerLink="application/calendar" *ngIf="isLoggedIn">Calendrier</a>
         </li>
+
         <li class="nav-item">
-          <a href="/event" class="nav-link" routerLink="application/calendar">calendar</a>
+         <a href="" class="nav-link"  routerLink="application/import" *ngIf="isLoggedIn">
+          <i class="fa-sharp fa-solid fa-file-import"></i>&nbsp;Importer</a>
         </li>
         <!-- <li class="nav-item" *ngIf="showAdminBoard">
           <a href="/admin" class="nav-link" routerLink="application/admin">Admin Board</a>
         </li> -->
-        <li class="nav-item" *ngIf="showModeratorBoard">
-          <a href="/mod" class="nav-link" routerLink="application/mod">Moderator Board</a>
-        </li>
-        <!-- <li class="nav-item">
-          <a href="/user" class="nav-link" *ngIf="isLoggedIn" routerLink="user">User</a>
-        </li> -->
+ 
+      
       </ul>
   
       <ul class="navbar-nav ml-auto" *ngIf="!isLoggedIn">
         <li class="nav-item">
-          <a href="/register" class="nav-link" routerLink="auth/register">Sign Up</a>
+          <a href="/register" class="nav-link" routerLink="auth/register">S'inscrire</a>
         </li>
         <li class="nav-item">
-          <a href="/login" class="nav-link" routerLink="auth/login">Login</a>
+          <a href="/login" class="nav-link" routerLink="auth/login">Connection</a>
         </li>
       </ul>
   
       <ul class="navbar-nav ml-auto" *ngIf="isLoggedIn">
         <li class="nav-item">
-          <a href="/profile" class="nav-link" routerLink="application/profile">{{ username }}</a>
+          <a href="/profile" class="nav-link" routerLink="application/profile"><i class="fa-solid fa-user"></i>&nbsp;{{ username }}</a>
         </li>
         <li class="nav-item">
-          <a href class="nav-link" (click)="logout()">LogOut</a>
+          <a href class="nav-link" (click)="logout()">Déconnection&nbsp; <i class="fa-solid fa-right-from-bracket fa-rotate-180"></i></a>
         </li>
       </ul>
     </nav>
     
-    <!-- <header>
-      <nav>
-        <ul>
-          <li><a routerLink="/scheduler" routerLinkActive="active">Scheduler</a></li>
-          <li><a routerLink="/employees" routerLinkActive="active">Employees</a></li>
-          <li><a routerLink="/events" routerLinkActive="active">Events</a></li>
-        </ul>
-      </nav>
-    </header> -->
 
   <router-outlet></router-outlet>
 </div>
